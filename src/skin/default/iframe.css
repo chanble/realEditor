@@ -1,0 +1,15 @@
+/*
+Document   : iframe
+Created on : 2013-10-31, 16:26:29
+Author     : chen
+Description: iframe style
+*/
+
+body{
+	border: 0px;
+	margin: 10px auto auto 5px;
+	line-height: 100%;
+	overflow-y: auto;
+	word-break: break-word;
+	word-wrap: break-word;
+}
