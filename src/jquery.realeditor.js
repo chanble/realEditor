@@ -29,15 +29,18 @@
 				+ toolsHtml +'</td></tr><tr><td>'
 				+ iframeHtml +'</td></tr></tbody></table></span>';
 		var iframeId = this.getIframId(i);
+		var elWidth = el.width();
+		var elHeight = el.height();
+		var elOffset = el.offset();
 		el.after(html);
-		var rlcontaioner = $("#"+rlcontainerId);
-		rlcontaioner.width(el.width());
-		rlcontaioner.offset(el.offset());//设置位置
-		var rl_iframe = $('#'+iframeId);
-		rl_iframe.width(el.width());
-		rl_iframe.height(el.height());
 		//隐藏文本框
 		this._hide(el);
+		var rlcontaioner = $("#"+rlcontainerId);
+		rlcontaioner.width(elWidth);
+		rlcontaioner.offset(elOffset);//设置位置
+		var rl_iframe = $('#'+iframeId);
+		rl_iframe.width(elWidth);
+		rl_iframe.height(elHeight);
 		this.initIframeContent(rl_iframe, this.getIframeContentHtml());
 		this.setEditable(rl_iframe, true);
 	};
