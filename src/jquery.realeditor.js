@@ -25,7 +25,7 @@
 		var iframeHtml = this.getIframeHtml(i);
 		var rlcontainerId = this.getContainerId(i);
 		var html = '<span class="rleditor_container" id="'
-				+ rlcontainerId + '"><table cellspacing="0" cellpadding="0"><tbody><tr><td class="rleditor_tool">'
+				+ rlcontainerId + '"><table cellspacing="0" cellpadding="0" style="display:inline-table;"><tbody><tr><td class="rleditor_tool">'
 				+ toolsHtml +'</td></tr><tr><td>'
 				+ iframeHtml +'</td></tr></tbody></table></span>';
 		var iframeId = this.getIframId(i);
@@ -38,6 +38,7 @@
 		var rlcontaioner = $("#"+rlcontainerId);
 		rlcontaioner.width(elWidth);
 		rlcontaioner.offset(elOffset);//设置位置
+		
 		var rl_iframe = $('#'+iframeId);
 		rl_iframe.width(elWidth);
 		rl_iframe.height(elHeight);
