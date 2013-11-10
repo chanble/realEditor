@@ -20,30 +20,35 @@
 		if (typeof(el.jquery) == "undefined"){
 			el = $(el);
 		}
-		this.setSkin();
-		var toolsHtml = this.getToolsHtml();
-		var iframeHtml = this.getIframeHtml(i);
-		var rlcontainerId = this.getContainerId(i);
-		var html = '<span class="rleditor_container" id="'
+		that.setSkin();
+		var toolsHtml = that.getToolsHtml(),
+		iframeHtml = that.getIframeHtml(i),
+		rlcontainerId = that.getContainerId(i),
+		html = '<span class="rleditor_container" id="'
 				+ rlcontainerId + '"><table cellspacing="0" cellpadding="0" style="display:inline-table;"><tbody><tr><td class="rleditor_tool">'
 				+ toolsHtml +'</td></tr><tr><td>'
 				+ iframeHtml +'</td></tr></tbody></table></span>';
-		var iframeId = this.getIframId(i);
-		var elWidth = el.width();
-		var elHeight = el.height();
-		var elOffset = el.offset();
+		var iframeId = that.getIframId(i)
+		,elWidth = el.width()
+		,elHeight = el.height()
+		,elContent = el.text();
+		//var elOffset = el.offset();
 		el.after(html);
 		//隐藏文本框
-		this._hide(el);
+		that._hide(el);
 		var rlcontaioner = $("#"+rlcontainerId);
 		rlcontaioner.width(elWidth);
-		rlcontaioner.offset(elOffset);//设置位置
-		
+		//rlcontaioner.offset(elOffset);//设置位置
+
 		var rl_iframe = $('#'+iframeId);
-		rl_iframe.width(elWidth);
-		rl_iframe.height(elHeight);
-		this.initIframeContent(rl_iframe, this.getIframeContentHtml());
-		this.setEditable(rl_iframe, true);
+		that.mrl_iframe = rl_iframe;
+		that.mrl_window = rl_iframe[0].contentWindow;
+		this.initIframeContent(this.getIframeContentHtml());
+		that.mrl_document = rl_iframe[0].contentWindow.document;
+		this.setEditable(true);
+		that.mrl_body = rl_iframe[0].contentWindow.document.body;
+		rl_iframe.width(elWidth).height(elHeight);
+		this.initEditorContent(elContent);
 	};
 	RealEditor.options = {};
 	RealEditor.DEFAULT_OPTS = {
@@ -67,15 +72,12 @@
 		}
 		,getIframeContentHtml : function (){
 			var iframeHeaderHtml = this.getIframeHeaderHtml();
-			return '<html><head>' + iframeHeaderHtml + '</head><body></body></html>';
+			return '<html><head>' + iframeHeaderHtml + '</head><body id="mmid"></body></html>';
 		}
-		,setEditable : function (iframe, b){
-			var editorWin = iframe[0].contentWindow;
+		,setEditable : function (b){
 			var design = b == true ? 'on' : 'off';
-			editorWin.document.designMode = design;
-		}
-		,setPos : function (left, top){
-
+			this.mrl_document.designMode = design;
+			return this;
 		}
 		,getIframId :function (i){
 			return 'realeditor' + i + '_iframe';
@@ -87,6 +89,7 @@
 				+'" rel="stylesheet" type="text/css" href="'
 				+skinPath+'/'+ skin+'/common.css">';
 			$('head').append(skinLink);
+			return this;
 		}
 		,getIframeHeaderHtml :function (){
 			var skinPath = this.options.skinPath;
@@ -94,18 +97,38 @@
 			return '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><link rel="stylesheet" href="'
 						+skinPath+'/'+ skin+'/iframe.css"/>';
 		}
-		,initIframeContent : function (frame, content){
+		,initIframeContent : function (content){
 			try{
-				var doc = frame[0].contentWindow.document;
+				var doc = this.mrl_document;
 				doc.open();
 				doc.write(content);
 				doc.close();
 			}catch(e){
-
+				console.info(e);
 			}
+			return this;
 		}
 		,getContainerId : function (n){
 			return 'realeditor'+n+'_container';
+		}
+		,getEditorContent: function (){
+			return $(this.mrl_body).text();
+		}
+		,initEditorContent : function(str){
+			var newStr = this.convertHtml(str);
+			$(this.mrl_body).html(newStr);
+			return this;
+		}
+		// convert html mark to entity name
+		// 转换thml标签为实体名字
+		,convertHtml: function (str){
+			var newStr = str.replace(/</g, '&lt;');
+			newStr = newStr.replace(/>/g, '&gt;');
+			newStr = newStr.replace(/\s/g, '&nbsp;');
+			return newStr;
+		}
+		,appendHtml : function (str){
+			$(this.mrl_body).append(str);
 		}
 	};
 })(jQuery);
