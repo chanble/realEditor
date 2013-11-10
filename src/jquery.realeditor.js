@@ -43,8 +43,8 @@
 		var rl_iframe = $('#'+iframeId);
 		that.mrl_iframe = rl_iframe;
 		that.mrl_window = rl_iframe[0].contentWindow;
-		this.initIframeContent(this.getIframeContentHtml());
 		that.mrl_document = rl_iframe[0].contentWindow.document;
+		this.initIframeContent(this.getIframeContentHtml());
 		this.setEditable(true);
 		that.mrl_body = rl_iframe[0].contentWindow.document.body;
 		rl_iframe.width(elWidth).height(elHeight);
