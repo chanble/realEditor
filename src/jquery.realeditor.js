@@ -16,7 +16,12 @@
 		if (typeof(o) != "object"){
 			o = {};
 		}
+		//添加工具栏的工具
+		this.tools = {
+			blod : {label:'blod',mouseOver:'blodMouseOver', click:'blodClick'}
+		};
 		that.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
+		this._init();
 		if (typeof(el.jquery) == "undefined"){
 			el = $(el);
 		}
@@ -37,9 +42,11 @@
 		//隐藏文本框
 		that._hide(el);
 		var rlcontaioner = $("#"+rlcontainerId);
+		that.mrl_contaioner = rlcontaioner;
 		rlcontaioner.width(elWidth);
 		//rlcontaioner.offset(elOffset);//设置位置
-
+		//init tools
+		that.initTools();
 		var rl_iframe = $('#'+iframeId);
 		that.mrl_iframe = rl_iframe;
 		that.mrl_window = rl_iframe[0].contentWindow;
@@ -63,8 +70,20 @@
 		_hide : function (e){
 			e.css('display', 'none');
 		}
+		,_init : function (){
+			this.toolTheme = {
+				standard : ['blod','italic','underline','strikeout'
+					,'image','unorderList','orderList','link','color'
+					,'font','fontSize','alignLeft', 'alignCenter', 'alignRight']
+				,mimi: ['blod','italic','underline','strikeout']
+				,full:['blod','italic','underline','strikeout']
+			};
+		}
 		,getToolsHtml : function (){
 			return '';
+		}
+		,appendToolsHtml : function (str){
+			$('td.rleditor_tool', this.mrl_contaioner).append(str);
 		}
 		,getIframeHtml : function (i){
 			var realeditorId = this.getIframId(i);
@@ -129,6 +148,29 @@
 		}
 		,appendHtml : function (str){
 			$(this.mrl_body).append(str);
+		}
+		,initTools : function (){
+			var tempTools = null;
+			if (typeof this.options.tools == 'string'){
+				tempTools = this.toolTheme[this.options.tools];
+			}else{
+				tempTools = this.options.tools;
+			}
+			for(i in tempTools){
+				var tempTool = this.tools[tempTools[i]];
+				if (typeof tempTool == 'undefined'){
+					break;
+				}else{
+					this.appendTool(tempTool);
+				}
+			}
+		}
+		,appendTool : function (ot){
+			var label = ot.label;
+			var toolStr = '<span><a><span class="rltoolicon rltoolicon-'
+							+label+'">'
+							+label+'</span></a></span>';
+			this.appendToolsHtml(toolStr);
 		}
 	};
 })(jQuery);
