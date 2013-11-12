@@ -18,7 +18,7 @@
 		}
 		//添加工具栏的工具
 		this.tools = {
-			blod : {label:'blod',mouseOver:'blodMouseOver', click:'blodClick'}
+			blod : {label:'blod',event:{mouseenter:'blodMouseOver', click:'blodClick'}}
 		};
 		that.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
 		this._init();
@@ -66,9 +66,20 @@
 		,width : 200
 		,height:100
 	};
+	RealEditor.toolsFun = {
+		blod:{
+			blodMouseOver: function (e){
+
+			}
+			,blodClick : function (e){
+				console.info(e);
+			}
+		}
+	};
 	RealEditor.prototype = {
 		_hide : function (e){
 			e.css('display', 'none');
+			return this;
 		}
 		,_init : function (){
 			this.toolTheme = {
@@ -78,12 +89,14 @@
 				,mimi: ['blod','italic','underline','strikeout']
 				,full:['blod','italic','underline','strikeout']
 			};
+			return this;
 		}
 		,getToolsHtml : function (){
 			return '';
 		}
 		,appendToolsHtml : function (str){
 			$('td.rleditor_tool', this.mrl_contaioner).append(str);
+			return this;
 		}
 		,getIframeHtml : function (i){
 			var realeditorId = this.getIframId(i);
@@ -148,6 +161,20 @@
 		}
 		,appendHtml : function (str){
 			$(this.mrl_body).append(str);
+			return this;
+		}
+		,getSelection : function (){
+			var t = ''
+			,_win = this.mrl_window
+			,_doc = this.mrl_document;
+			if(_win.getSelection) {
+				t = _win.getSelection();
+			} else if(_doc.getSelection) {
+				t = _doc.getSelection();
+			} else if(_doc.selection) {
+				t = _doc.selection.createRange().text;
+			}
+			return t.toString();
 		}
 		,initTools : function (){
 			var tempTools = null;
@@ -164,13 +191,34 @@
 					this.appendTool(tempTool);
 				}
 			}
+			return this;
 		}
 		,appendTool : function (ot){
 			var label = ot.label;
-			var toolStr = '<span><a class="rltoolbutton"><span class="rltoolicon rltoolicon-'
+			var toolStr = '<span><a class="rltoolbutton" id="rltoolabutton'
+							+label+'"><span class="rltoolicon rltoolicon-'
 							+label+'">'
 							+label+'</span></a></span>';
 			this.appendToolsHtml(toolStr);
+			this.bindEvent(ot);
+			return this;
+		}
+		,bindEvent : function (obj){
+			if (typeof obj == 'undefined'
+					|| typeof obj.event == 'undefined'
+					|| obj.event.length == 0){
+				return ;
+			}
+			var _events = obj.event;
+			var that = this;
+			for (e in _events){
+				//$("#rltoolabutton"+obj.label).bind(e, function (e){
+					//this.toolsFun[obj.label][_events.e]();
+				//});
+				$("#rltoolabutton"+obj.label).click(function (){
+					console.info(that.getSelection());
+				})
+			}
 		}
 	};
 })(jQuery);
