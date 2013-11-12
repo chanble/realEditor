@@ -167,7 +167,7 @@
 		}
 		,appendTool : function (ot){
 			var label = ot.label;
-			var toolStr = '<span><a><span class="rltoolicon rltoolicon-'
+			var toolStr = '<span><a class="rltoolbutton"><span class="rltoolicon rltoolicon-'
 							+label+'">'
 							+label+'</span></a></span>';
 			this.appendToolsHtml(toolStr);
