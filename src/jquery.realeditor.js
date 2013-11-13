@@ -17,8 +17,15 @@
 			o = {};
 		}
 		//添加工具栏的工具
+		//If you want add tool to tool bar. You must be do three steps:
+		//1,Add tool bar element: add a k-v pair to this.tools object like tool-blod
+		//2,Add element style: add style rltoolicon-XXX, XXX represent object.label
+		//3,Add element events: add event callback function to RealEditor.toolsFun
 		this.tools = {
-			blod : {label:'blod',event:{mouseenter:'blodMouseOver', click:'blodClick'}}
+			blod : {label:'blod',event:{mouseenter:'blodMouseOver'
+									, click:'blodClick'
+									,mouseleave:'blodMouseleave'}
+				}
 		};
 		that.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
 		this._init();
@@ -69,10 +76,13 @@
 	RealEditor.toolsFun = {
 		blod:{
 			blodMouseOver: function (e){
-
+				//console.info(111);
 			}
 			,blodClick : function (e){
-				console.info(e);
+				this.getSelection();
+			}
+			,blodMouseleave : function (e){
+				//alert('mouseleave');
 			}
 		}
 	};
@@ -204,20 +214,17 @@
 			return this;
 		}
 		,bindEvent : function (obj){
-			if (typeof obj == 'undefined'
-					|| typeof obj.event == 'undefined'
+			if (typeof(obj) == 'undefined'
+					|| typeof (obj.event) == 'undefined'
 					|| obj.event.length == 0){
 				return ;
 			}
 			var _events = obj.event;
 			var that = this;
 			for (e in _events){
-				//$("#rltoolabutton"+obj.label).bind(e, function (e){
-					//this.toolsFun[obj.label][_events.e]();
-				//});
-				$("#rltoolabutton"+obj.label).click(function (){
-					console.info(that.getSelection());
-				})
+				(function (_e){$("#rltoolabutton"+obj.label).bind(_e, function (){
+					RealEditor.toolsFun[obj.label][_events[_e]].call(that, this);
+				})})(e);
 			}
 		}
 	};

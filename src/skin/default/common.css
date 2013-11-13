@@ -43,7 +43,7 @@ Description: container style
 .rleditor_tool a.rltoolbutton:hover{
 	background-color: #fff;
 	border: 1px solid;
-	border-color: #000;
+	border-color: #c5c5c5;
 }
 
 .rleditor_tool a.rltoolbutton{
