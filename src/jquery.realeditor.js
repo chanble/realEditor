@@ -79,7 +79,13 @@
 				//console.info(111);
 			}
 			,blodClick : function (e){
-				this.getSelection();
+				var selection = this.getSelection();
+				if (selection.length == 0){
+					return ;
+				}else{
+					var newSelection = '<b>'+this.convertHtml(selection)+'</b>';
+					this.appendHtml(newSelection);
+				}
 			}
 			,blodMouseleave : function (e){
 				//alert('mouseleave');
