@@ -18,13 +18,13 @@
 		}
 		//添加工具栏的工具
 		//If you want add tool to tool bar. You must be do three steps:
-		//1,Add tool bar element: add a k-v pair to this.tools object like tool-blod
+		//1,Add tool bar element: add a k-v pair to this.tools object like tool-bold
 		//2,Add element style: add style rltoolicon-XXX, XXX represent object.label
 		//3,Add element events: add event callback function to RealEditor.toolsFun
 		this.tools = {
-			blod : {label:'blod',event:{mouseenter:'blodMouseOver'
-									, click:'blodClick'
-									,mouseleave:'blodMouseleave'}
+			bold : {label:'bold',event:{mouseenter:'boldMouseOver'
+									, click:'boldClick'
+									,mouseleave:'boldMouseleave'}
 				}
 		};
 		that.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
@@ -74,20 +74,15 @@
 		,height:100
 	};
 	RealEditor.toolsFun = {
-		blod:{
-			blodMouseOver: function (e){
+		bold:{
+			boldMouseOver: function (el, e){
 				//console.info(111);
 			}
-			,blodClick : function (e){
-				var selection = this.getSelection();
-				if (selection.length == 0){
-					return ;
-				}else{
-					var newSelection = '<b>'+this.convertHtml(selection)+'</b>';
-					this.appendHtml(newSelection);
-				}
+			,boldClick : function (el, e){
+				this.execCommand('bold', false, null);
+				this.focus();
 			}
-			,blodMouseleave : function (e){
+			,boldMouseleave : function (el, e){
 				//alert('mouseleave');
 			}
 		}
@@ -99,11 +94,11 @@
 		}
 		,_init : function (){
 			this.toolTheme = {
-				standard : ['blod','italic','underline','strikeout'
+				standard : ['bold','italic','underline','strikeout'
 					,'image','unorderList','orderList','link','color'
 					,'font','fontSize','alignLeft', 'alignCenter', 'alignRight']
-				,mimi: ['blod','italic','underline','strikeout']
-				,full:['blod','italic','underline','strikeout']
+				,mimi: ['bold','italic','underline','strikeout']
+				,full:['bold','italic','underline','strikeout']
 			};
 			return this;
 		}
@@ -129,6 +124,19 @@
 		}
 		,getIframId :function (i){
 			return 'realeditor' + i + '_iframe';
+		}
+		,focus : function (){
+			this.mrl_window.focus();
+			return this;
+		}
+		,execCommand : function (command, aShowDefaultUI, aValue){
+			var aShowUI = !!aShowDefaultUI, state = false;
+			if (aValue !== undefined){
+				 state = this.mrl_document.execCommand(command, aShowUI, aValue);
+			}else{
+				state = this.mrl_document.execCommand(command, aShowUI, null);
+			}
+			return state;
 		}
 		,setSkin : function (){
 			var skinPath = this.options.skinPath;
@@ -180,17 +188,23 @@
 			return this;
 		}
 		,getSelection : function (){
-			var t = ''
-			,_win = this.mrl_window
+			var _win = this.mrl_window
 			,_doc = this.mrl_document;
-			if(_win.getSelection) {
-				t = _win.getSelection();
-			} else if(_doc.getSelection) {
-				t = _doc.getSelection();
-			} else if(_doc.selection) {
-				t = _doc.selection.createRange().text;
+
+			var sel = _win.getSelection ? _win.getSelection()
+						: (_doc.getSelection ? _doc.getSelection() : _doc.selection);
+			return sel;
+		}
+		,getRange : function (){
+			var rng = null;
+			try{
+				var sel = this.getSelection();
+				rng = sel.createRange ? sel.createRange()
+						: (sel.rangeCount > 0?sel.getRangeAt(0) : null);
+			}catch(e){
+				console.info(e);
 			}
-			return t.toString();
+			return rng;
 		}
 		,initTools : function (){
 			var tempTools = null;
@@ -228,8 +242,8 @@
 			var _events = obj.event;
 			var that = this;
 			for (e in _events){
-				(function (_e){$("#rltoolabutton"+obj.label).bind(_e, function (){
-					RealEditor.toolsFun[obj.label][_events[_e]].call(that, this);
+				(function (_e){$("#rltoolabutton"+obj.label).bind(_e, function (event){
+					RealEditor.toolsFun[obj.label][_events[_e]].call(that, this, event);
 				})})(e);
 			}
 		}
