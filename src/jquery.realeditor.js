@@ -12,7 +12,6 @@
 		});
 	};
 	var RealEditor = function (i,el, o){
-		var that = this;
 		if (typeof(o) != "object"){
 			o = {};
 		}
@@ -27,40 +26,40 @@
 									,mouseleave:'boldMouseleave'}
 				}
 		};
-		that.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
+		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
 		this._init();
 		if (typeof(el.jquery) == "undefined"){
 			el = $(el);
 		}
-		that.setSkin();
-		var toolsHtml = that.getToolsHtml(),
-		iframeHtml = that.getIframeHtml(i),
-		rlcontainerId = that.getContainerId(i),
+		this.setSkin();
+		var toolsHtml = this.getToolsHtml(),
+		iframeHtml = this.getIframeHtml(i),
+		rlcontainerId = this.getContainerId(i),
 		html = '<span class="rleditor_container" id="'
 				+ rlcontainerId + '"><table cellspacing="0" cellpadding="0" style="display:inline-table;"><tbody><tr><td class="rleditor_tool">'
 				+ toolsHtml +'</td></tr><tr><td>'
 				+ iframeHtml +'</td></tr></tbody></table></span>';
-		var iframeId = that.getIframId(i)
+		var iframeId = this.getIframId(i)
 		,elWidth = el.width()
 		,elHeight = el.height()
 		,elContent = el.text();
 		//var elOffset = el.offset();
 		el.after(html);
 		//隐藏文本框
-		that._hide(el);
+		this._hide(el);
 		var rlcontaioner = $("#"+rlcontainerId);
-		that.mrl_contaioner = rlcontaioner;
+		this.mrl_contaioner = rlcontaioner;
 		rlcontaioner.width(elWidth);
 		//rlcontaioner.offset(elOffset);//设置位置
 		//init tools
-		that.initTools();
+		this.initTools();
 		var rl_iframe = $('#'+iframeId);
-		that.mrl_iframe = rl_iframe;
-		that.mrl_window = rl_iframe[0].contentWindow;
-		that.mrl_document = rl_iframe[0].contentWindow.document;
+		this.mrl_iframe = rl_iframe;
+		this.mrl_window = this.mrl_iframe[0].contentWindow;
+		this.mrl_document = this.mrl_window.document;
 		this.initIframeContent(this.getIframeContentHtml());
 		this.setEditable(true);
-		that.mrl_body = rl_iframe[0].contentWindow.document.body;
+		this.mrl_body = this.mrl_document.body;
 		rl_iframe.width(elWidth).height(elHeight);
 		this.initEditorContent(elContent);
 	};
