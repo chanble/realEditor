@@ -54,14 +54,14 @@
 		//init tools
 		this.initTools();
 		var rl_iframe = $('#'+iframeId);
-		this.mrl_iframe = rl_iframe;
-		this.mrl_window = this.mrl_iframe[0].contentWindow;
+		this.mrl_iframe = rl_iframe[0];
+		this.mrl_window = this.mrl_iframe.contentWindow;
 		this.mrl_document = this.mrl_window.document;
 		this.initIframeContent(this.getIframeContentHtml());
 		this.setEditable(true);
 		this.mrl_body = this.mrl_document.body;
 		rl_iframe.width(elWidth).height(elHeight);
-		this.initEditorContent(elContent);
+		this.appendText(elContent);
 	};
 	RealEditor.options = {};
 	RealEditor.DEFAULT_OPTS = {
@@ -169,10 +169,9 @@
 		,getEditorContent: function (){
 			return $(this.mrl_body).text();
 		}
-		,initEditorContent : function(str){
+		,appendText : function(str){
 			var newStr = this.convertHtml(str);
-			$(this.mrl_body).html(newStr);
-			return this;
+			return this.appendHtml(newStr);
 		}
 		// convert html mark to entity name
 		// 转换thml标签为实体名字
