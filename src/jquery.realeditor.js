@@ -15,6 +15,14 @@
 		if (typeof(o) != "object"){
 			o = {};
 		}
+
+		//
+		var userAgent=navigator.userAgent.toLowerCase();
+		this.isFirefox=/firefox/.test(userAgent);
+		this.isOpera=/opera/.test(userAgent);
+		this.isSafari=/webkit/.test(userAgent);
+		this.isIE=/msie/.test(userAgent)&&!/opera/.test(userAgent);
+
 		//添加工具栏的工具
 		//If you want add tool to tool bar. You must be do three steps:
 		//1,Add tool bar element: add a k-v pair to this.tools object like tool-bold
@@ -57,9 +65,18 @@
 		this.mrl_iframe = rl_iframe[0];
 		this.mrl_window = this.mrl_iframe.contentWindow;
 		this.mrl_document = this.mrl_window.document;
-		this.initIframeContent(this.getIframeContentHtml());
+		//this.initIframeContent(this.getIframeContentHtml());
+		var content = this.getIframeContentHtml();
+		var doc = this.mrl_document;
+		try{
+			doc.open();
+			doc.write(content);
+			doc.close();
+			this.mrl_body = doc.body;
+		}catch(e){
+			console.info(e);
+		}
 		this.setEditable(true);
-		this.mrl_body = this.mrl_document.body;
 		rl_iframe.width(elWidth).height(elHeight);
 		this.appendText(elContent);
 	};
@@ -110,11 +127,11 @@
 		}
 		,getIframeHtml : function (i){
 			var realeditorId = this.getIframId(i);
-			return '<iframe id="'+ realeditorId +'"></iframe>';
+			return '<iframe id="'+ realeditorId +'" scr="javascript:;"></iframe>';
 		}
 		,getIframeContentHtml : function (){
 			var iframeHeaderHtml = this.getIframeHeaderHtml();
-			return '<html><head>' + iframeHeaderHtml + '</head><body id="mmid"></body></html>';
+			return '<html><head>' + iframeHeaderHtml + '</head><body></body></html>';
 		}
 		,setEditable : function (b){
 			var design = b == true ? 'on' : 'off';
@@ -125,8 +142,36 @@
 			return 'realeditor' + i + '_iframe';
 		}
 		,focus : function (){
-			this.mrl_window.focus();
+
+			if(this.isIE){
+				var rng = this.getRange();
+				if(rng.parentElement && rng.parentElement().ownerDocument !== this.mrl_document){
+					this.setTextCursor();//修正IE初始焦点问题
+				}
+			}else{
+				this.mrl_window.focus();
+			}
 			return this;
+		}
+		,setTextCursor: function (bLast){
+			var rng = this.getRange(true),cursorNode = this.mrl_document.body;
+			if(this.isIE){
+				rng.moveToElementText(cursorNode);
+			}else{
+				var chileName=bLast?'lastChild':'firstChild';
+				while(cursorNode.nodeType != 3 && cursorNode[chileName]){
+					cursorNode=cursorNode[chileName];
+				}
+				rng.selectNode(cursorNode);
+			}
+			rng.collapse(bLast ? false : true);
+			if(this.isIE){
+				rng.select();
+			}else{
+				var sel=this.getSelection();
+				sel.removeAllRanges();
+				sel.addRange(rng);
+			}
 		}
 		,execCommand : function (command, aShowDefaultUI, aValue){
 			var aShowUI = !!aShowDefaultUI, state = false;
@@ -153,8 +198,8 @@
 						+skinPath+'/'+ skin+'/iframe.css"/>';
 		}
 		,initIframeContent : function (content){
+			var doc = this.mrl_document;
 			try{
-				var doc = this.mrl_document;
 				doc.open();
 				doc.write(content);
 				doc.close();
@@ -181,24 +226,41 @@
 			newStr = newStr.replace(/\s/g, '&nbsp;');
 			return newStr;
 		}
-		,appendHtml : function (str){
-			$(this.mrl_body).append(str);
+		,appendHtml : function (str, start){
+			this.focus();
+			var sel = this.getSelection(), range = this.getRange();
+			//var fragment = this.mrl_document.createElement('span');
+			//fragment.innerHTML = str;
+			if (range.insertNode){
+				var fragment  = range.createContextualFragment(str);
+				range.insertNode(fragment);
+			}else{//IE
+				if(sel.type.toLowerCase()==='control'){
+					sel.clear();range = this.getRange();
+				}
+				range.pasteHTML(str);
+			}
 			return this;
 		}
 		,getSelection : function (){
 			var _win = this.mrl_window
 			,_doc = this.mrl_document;
-
 			var sel = _win.getSelection ? _win.getSelection()
 						: (_doc.getSelection ? _doc.getSelection() : _doc.selection);
 			return sel;
 		}
-		,getRange : function (){
+		,getRange : function (bNew){
 			var rng = null;
 			try{
-				var sel = this.getSelection();
-				rng = sel.createRange ? sel.createRange()
-						: (sel.rangeCount > 0?sel.getRangeAt(0) : null);
+				if(!bNew){
+					var sel = this.getSelection();
+					rng = sel.createRange ? sel.createRange()
+							: (sel.rangeCount > 0?sel.getRangeAt(0) : null);
+				}
+				if (!rng){
+					rng = this.mrl_body.createTextRange ? this.mrl_body.createTextRange()
+									:this.mrl_document.createRange();
+				}
 			}catch(e){
 				console.info(e);
 			}
