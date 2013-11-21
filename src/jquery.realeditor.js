@@ -28,6 +28,8 @@
 		//1,Add tool bar element: add a k-v pair to this.tools object like tool-bold
 		//2,Add element style: add style rltoolicon-XXX, XXX represent object.label
 		//3,Add element events: add event callback function to RealEditor.toolsFun
+
+		//This must be jquery event name
 		this.tools = {
 			bold : {label:'bold',event:{mouseenter:'boldMouseOver'
 									, click:'boldClick'
@@ -67,7 +69,7 @@
 		this.mrl_document = this.mrl_window.document;
 		this.initIframeContent(this.getIframeContentHtml());
 		rl_iframe.width(elWidth).height(elHeight);
-		this.setEditable(true).appendText(elContent);
+		this.setEditable(true).appendText(elContent).setCaretPosition(elContent.length);
 	};
 	RealEditor.options = {};
 	RealEditor.DEFAULT_OPTS = {
@@ -84,8 +86,7 @@
 				//console.info(111);
 			}
 			,boldClick : function (el, e){
-				this.execCommand('bold', false, null);
-				this.focus();
+				this.execCommand('bold', false, null).focus();
 			}
 			,boldMouseleave : function (el, e){
 				//alert('mouseleave');
@@ -145,7 +146,7 @@
 			}else{
 				state = this.mrl_document.execCommand(command, aShowUI, null);
 			}
-			return state;
+			return this;
 		}
 		,setSkin : function (){
 			var skinPath = this.options.skinPath;
@@ -256,6 +257,40 @@
 							+label+'</span></a></span>';
 			this.appendToolsHtml(toolStr);
 			this.bindEvent(ot);
+			return this;
+		}
+		//设置光标的位置
+		//if it's not work,please call this.focus
+		//just support <br> node.You can get node'th use childNodes[index]
+		//目前该方法仅支持<br>元素
+		,setCaretPosition : function(pos, node){
+			var sel = this.getSelection(), range = this.getRange();
+			if (!node){
+				node = this.mrl_body;
+			}
+			if (document.selection) {
+			  sel.moveStart('character', pos);
+			  sel.select();
+			}else {
+				try{
+					range.setStart(node, pos);
+					range.collapse(true);
+					sel.removeAllRanges();
+					sel.addRange(range);
+				}catch(e){
+					//如果抛出异常
+					if (e.code == DOMException.INDEX_SIZE_ERR){
+						var newPos = pos > 1 ? 1 : 0;
+						try{
+							return this.setCaretPosition(newPos, node);
+						}catch(e){
+							console.warn(e);
+						}
+					}else{
+						console.warn(e);
+					}
+				}
+			}
 			return this;
 		}
 		,bindEvent : function (obj){
