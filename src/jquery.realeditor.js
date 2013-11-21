@@ -65,20 +65,9 @@
 		this.mrl_iframe = rl_iframe[0];
 		this.mrl_window = this.mrl_iframe.contentWindow;
 		this.mrl_document = this.mrl_window.document;
-		//this.initIframeContent(this.getIframeContentHtml());
-		var content = this.getIframeContentHtml();
-		var doc = this.mrl_document;
-		try{
-			doc.open();
-			doc.write(content);
-			doc.close();
-			this.mrl_body = doc.body;
-		}catch(e){
-			console.info(e);
-		}
-		this.setEditable(true);
+		this.initIframeContent(this.getIframeContentHtml());
 		rl_iframe.width(elWidth).height(elHeight);
-		this.appendText(elContent);
+		this.setEditable(true).appendText(elContent);
 	};
 	RealEditor.options = {};
 	RealEditor.DEFAULT_OPTS = {
@@ -134,44 +123,20 @@
 			return '<html><head>' + iframeHeaderHtml + '</head><body></body></html>';
 		}
 		,setEditable : function (b){
-			var design = b == true ? 'on' : 'off';
-			this.mrl_document.designMode = design;
+			if(this.isIE){
+				this.mrl_body.contentEditable = b;
+			}else{
+				var design = b == true ? 'on' : 'off';
+				this.mrl_document.designMode = design;
+			}
 			return this;
 		}
 		,getIframId :function (i){
 			return 'realeditor' + i + '_iframe';
 		}
 		,focus : function (){
-
-			if(this.isIE){
-				var rng = this.getRange();
-				if(rng.parentElement && rng.parentElement().ownerDocument !== this.mrl_document){
-					this.setTextCursor();//修正IE初始焦点问题
-				}
-			}else{
-				this.mrl_window.focus();
-			}
+			this.mrl_window.focus();
 			return this;
-		}
-		,setTextCursor: function (bLast){
-			var rng = this.getRange(true),cursorNode = this.mrl_document.body;
-			if(this.isIE){
-				rng.moveToElementText(cursorNode);
-			}else{
-				var chileName=bLast?'lastChild':'firstChild';
-				while(cursorNode.nodeType != 3 && cursorNode[chileName]){
-					cursorNode=cursorNode[chileName];
-				}
-				rng.selectNode(cursorNode);
-			}
-			rng.collapse(bLast ? false : true);
-			if(this.isIE){
-				rng.select();
-			}else{
-				var sel=this.getSelection();
-				sel.removeAllRanges();
-				sel.addRange(rng);
-			}
 		}
 		,execCommand : function (command, aShowDefaultUI, aValue){
 			var aShowUI = !!aShowDefaultUI, state = false;
@@ -203,6 +168,7 @@
 				doc.open();
 				doc.write(content);
 				doc.close();
+				this.mrl_body = doc.body;
 			}catch(e){
 				console.info(e);
 			}
@@ -229,14 +195,13 @@
 		,appendHtml : function (str, start){
 			this.focus();
 			var sel = this.getSelection(), range = this.getRange();
-			//var fragment = this.mrl_document.createElement('span');
-			//fragment.innerHTML = str;
 			if (range.insertNode){
 				var fragment  = range.createContextualFragment(str);
 				range.insertNode(fragment);
 			}else{//IE
 				if(sel.type.toLowerCase()==='control'){
-					sel.clear();range = this.getRange();
+					sel.clear();
+					range = this.getRange();
 				}
 				range.pasteHTML(str);
 			}
