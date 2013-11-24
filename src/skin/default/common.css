@@ -36,6 +36,14 @@ Description: container style
 .rleditor_tool span.rltoolicon-bold{
 	background-position: -165px -43px;
 }
+
+.rleditor_tool span.rltoolicon-italic{
+	background-position: -190px -43px;
+}
+.rleditor_tool span.rltoolicon-underline{
+	background-position: 0px -160px;
+}
+
 .rleditor_tool span{
 	float: left;
 	margin: 2px 0px;

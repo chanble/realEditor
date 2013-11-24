@@ -35,6 +35,10 @@
 									, click:'boldClick'
 									,mouseleave:'boldMouseleave'}
 				}
+			,italic : {label:'italic',event:{click:'click'}
+				}
+			,underline : {label:'underline',event:{click:'click'}
+				}
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
 		this._init();
@@ -90,6 +94,14 @@
 			}
 			,boldMouseleave : function (el, e){
 				//alert('mouseleave');
+			}
+		}
+		,italic:{click : function (el, e){
+				this.execCommand('italic', false, null).focus();
+			}
+		}
+		,underline:{click : function (el, e){
+				this.execCommand('underline', false, null).focus();
 			}
 		}
 	};
