@@ -11,6 +11,10 @@
 			new RealEditor(i,v,opts);
 		});
 	};
+
+	var keyMap = {9:'Tab', 13:'Enter', 16 : 'Shift', 17 : 'Ctrl', 18 : 'Alt', 27 : 'Esc'
+			, 66 : 'B', 73 : 'I',83 :'S', 85 : 'U'};
+
 	var RealEditor = function (i,el, o){
 		if (typeof(o) != "object"){
 			o = {};
@@ -31,13 +35,14 @@
 
 		//This must be jquery event name
 		this.tools = {
-			bold : {label:'bold',event:{mouseenter:'boldMouseOver'
+			bold : {key: 'bold', label:'粗体', event:{mouseenter:'boldMouseOver'
 									, click:'boldClick'
 									,mouseleave:'boldMouseleave'}
+					,shortcutKey : 'Ctrl+B'
 				}
-			,italic : {label:'italic',event:{click:'click'}
+			,italic : {key: 'italic',label:'斜体',event:{click:'click'},shortcutKey : 'Ctrl+I'
 				}
-			,underline : {label:'underline',event:{click:'click'}
+			,underline : {key: 'underline',label:'下划线',event:{click:'click'},shortcutKey : 'Ctrl+U'
 				}
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
@@ -74,6 +79,7 @@
 		this.initIframeContent(this.getIframeContentHtml());
 		rl_iframe.width(elWidth).height(elHeight);
 		this.setEditable(true).appendText(elContent).setCaretPosition(elContent.length);
+		this.bindKeyEvent();
 	};
 	RealEditor.options = {};
 	RealEditor.DEFAULT_OPTS = {
@@ -86,15 +92,11 @@
 	};
 	RealEditor.toolsFun = {
 		bold:{
-			boldMouseOver: function (el, e){
-				//console.info(111);
-			}
+			boldMouseOver: function (el, e){}
 			,boldClick : function (el, e){
 				this.execCommand('bold', false, null).focus();
 			}
-			,boldMouseleave : function (el, e){
-				//alert('mouseleave');
-			}
+			,boldMouseleave : function (el, e){}
 		}
 		,italic:{click : function (el, e){
 				this.execCommand('italic', false, null).focus();
@@ -240,7 +242,7 @@
 									:this.mrl_document.createRange();
 				}
 			}catch(e){
-				console.info(e);
+				console.warn(e);
 			}
 			return rng;
 		}
@@ -251,7 +253,7 @@
 			}else{
 				tempTools = this.options.tools;
 			}
-			for(i in tempTools){
+			for(var i in tempTools){
 				var tempTool = this.tools[tempTools[i]];
 				if (typeof tempTool == 'undefined'){
 					break;
@@ -262,11 +264,14 @@
 			return this;
 		}
 		,appendTool : function (ot){
-			var label = ot.label;
+			var key = ot.key;
+			var label = !!ot.label ? ot.label : '';
+			var shortcutKey = !!ot.shortcutKey ? ot.shortcutKey : '';
 			var toolStr = '<span><a class="rltoolbutton" id="rltoolabutton'
-							+label+'"><span class="rltoolicon rltoolicon-'
-							+label+'">'
-							+label+'</span></a></span>';
+							+key+'" title="'+label + '(' + shortcutKey + ')'
+							+'"><span class="rltoolicon rltoolicon-'
+							+key+'">'
+							+key+'</span></a></span>';
 			this.appendToolsHtml(toolStr);
 			this.bindEvent(ot);
 			return this;
@@ -313,11 +318,17 @@
 			}
 			var _events = obj.event;
 			var that = this;
-			for (e in _events){
+			for (var e in _events){
 				(function (_e){$("#rltoolabutton"+obj.label).bind(_e, function (event){
 					RealEditor.toolsFun[obj.label][_events[_e]].call(that, this, event);
 				})})(e);
 			}
+		}
+		,bindKeyEvent : function (obj){
+			var t = this;
+			$(this.mrl_document).keypress(function (e){
+				
+			});
 		}
 	};
 })(jQuery);
