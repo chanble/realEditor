@@ -319,15 +319,15 @@
 			var _events = obj.event;
 			var that = this;
 			for (var e in _events){
-				(function (_e){$("#rltoolabutton"+obj.label).bind(_e, function (event){
-					RealEditor.toolsFun[obj.label][_events[_e]].call(that, this, event);
+				(function (_e){$("#rltoolabutton"+obj.key).bind(_e, function (event){
+					RealEditor.toolsFun[obj.key][_events[_e]].call(that, this, event);
 				})})(e);
 			}
 		}
 		,bindKeyEvent : function (obj){
 			var t = this;
 			$(this.mrl_document).keypress(function (e){
-				
+
 			});
 		}
 	};
