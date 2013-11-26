@@ -56,7 +56,7 @@
 		rlcontainerId = this.getContainerId(i),
 		html = '<span class="rleditor_container" id="'
 				+ rlcontainerId + '"><table cellspacing="0" cellpadding="0" style="display:inline-table;"><tbody><tr><td class="rleditor_tool">'
-				+ toolsHtml +'</td></tr><tr><td>'
+				+ toolsHtml +'</td></tr><tr><td class="rleditor_content">'
 				+ iframeHtml +'</td></tr></tbody></table></span>';
 		var iframeId = this.getIframId(i)
 		,elWidth = el.width()
@@ -69,6 +69,7 @@
 		var rlcontaioner = $("#"+rlcontainerId);
 		this.mrl_contaioner = rlcontaioner;
 		rlcontaioner.width(elWidth);
+		$("td.rleditor_content", rlcontaioner).width(elWidth).height(elHeight);
 		//rlcontaioner.offset(elOffset);//设置位置
 		//init tools
 		this.initTools();
@@ -77,7 +78,6 @@
 		this.mrl_window = this.mrl_iframe.contentWindow;
 		this.mrl_document = this.mrl_window.document;
 		this.initIframeContent(this.getIframeContentHtml());
-		rl_iframe.width(elWidth).height(elHeight);
 		this.setEditable(true).appendText(elContent).setCaretPosition(elContent.length);
 		this.bindKeyEvent();
 	};
