@@ -324,11 +324,30 @@
 				})})(e);
 			}
 		}
-		,bindKeyEvent : function (obj){
-			var t = this;
+		,bindKeyEvent : function (){
+			var _this = this;
 			$(this.mrl_document).keypress(function (e){
-
+				(function (_e){for (var t in _this.tools){
+					var tb = _this.tools[t].key;
+					var ts = _this.tools[t].shortcutKey;
+					if (_this.equalShortcut(e, ts)){
+						$("#rltoolabutton"+tb).trigger('click');
+					}
+				}})(e);
 			});
+		}
+		,equalShortcut : function (keyEvent, shortcutStr){
+			var ctrl = !!keyEvent.ctrlKey, ctrlStr = 'ctrl'
+			,alt = !!keyEvent.altKey, altStr = 'alt'
+			,shift = !!keyEvent.shiftKey, shiftStr = 'shift'
+			,kc = keyEvent.keyCode
+			,separator = '+';
+			if (shortcutStr.indexOf(separator) >= 0){
+				var scArray = shortcutStr.split(separator);
+				return (scArray[0].toLowerCase() == ctrlStr && ctrl) && keyMap[kc] == scArray[1];
+			}else{
+				return false;
+			}
 		}
 	};
 })(jQuery);
