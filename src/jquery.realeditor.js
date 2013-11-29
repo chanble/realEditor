@@ -13,7 +13,7 @@
 	};
 
 	var keyMap = {9:'Tab', 13:'Enter', 16 : 'Shift', 17 : 'Ctrl', 18 : 'Alt', 27 : 'Esc'
-			, 66 : 'B', 73 : 'I',83 :'S', 85 : 'U'};
+			, 66 : 'B', 98: 'b', 73 : 'I', 105:'i', 85 : 'U', 117: 'u'};
 
 	var RealEditor = function (i,el, o){
 		if (typeof(o) != "object"){
@@ -327,12 +327,14 @@
 		,bindKeyEvent : function (){
 			var _this = this;
 			$(this.mrl_document).keypress(function (e){
-				(function (_e){for (var t in _this.tools){
+				(function (_e){
+					for (var t in _this.tools){
 					var tb = _this.tools[t].key;
 					var ts = _this.tools[t].shortcutKey;
-					if (_this.equalShortcut(e, ts)){
+					if (_this.equalShortcut(_e, ts)){
 						$("#rltoolabutton"+tb).trigger('click');
 					}
+					_e.preventDefault();
 				}})(e);
 			});
 		}
@@ -340,14 +342,29 @@
 			var ctrl = !!keyEvent.ctrlKey, ctrlStr = 'ctrl'
 			,alt = !!keyEvent.altKey, altStr = 'alt'
 			,shift = !!keyEvent.shiftKey, shiftStr = 'shift'
-			,kc = keyEvent.keyCode
+			,kc = this.getKeyCode(keyEvent)
 			,separator = '+';
 			if (shortcutStr.indexOf(separator) >= 0){
 				var scArray = shortcutStr.split(separator);
-				return (scArray[0].toLowerCase() == ctrlStr && ctrl) && keyMap[kc] == scArray[1];
+				var bCtrl = !(this.inArray(ctrlStr, scArray) ^ ctrl);
+				var bAlt = !(this.inArray(altStr, scArray) ^ alt);
+				var bShift = !(this.inArray(shiftStr, scArray) ^ shift);
+				var bKey = this.inArray(keyMap[kc], scArray);
+				return bCtrl && bAlt && bShift && bKey;
 			}else{
 				return false;
 			}
+		}
+		, getKeyCode : function (keyEvent){
+			return keyEvent.keyCode | keyEvent.charCode;
+		}
+		,inArray : function (s, a){
+			for (var i in a){
+				if (String(s).toLowerCase() == String(a[i]).toLowerCase()){
+					return true;
+				}
+			}
+			return false;
 		}
 	};
 })(jQuery);
