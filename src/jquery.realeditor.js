@@ -35,14 +35,14 @@
 
 		//This must be jquery event name
 		this.tools = {
-			bold : {key: 'bold', label:'粗体', event:{mouseenter:'boldMouseOver'
-									, click:'boldClick'
-									,mouseleave:'boldMouseleave'}
+			bold : {key: 'bold', label:'粗体', event:{click:'click'}
 					,shortcutKey : 'Ctrl+B'
 				}
 			,italic : {key: 'italic',label:'斜体',event:{click:'click'},shortcutKey : 'Ctrl+I'
 				}
 			,underline : {key: 'underline',label:'下划线',event:{click:'click'},shortcutKey : 'Ctrl+U'
+				}
+			,font : {key: 'font',label:'字体',event:{click:'click', mouseenter : 'mouseEnter',mouseleave : 'mouseLeave' }
 				}
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
@@ -83,7 +83,7 @@
 	};
 	RealEditor.options = {};
 	RealEditor.DEFAULT_OPTS = {
-		tools:'standard'
+		tools:'full'
 		,skin:'default'
 		,skinPath:'js/realeditor/skin'
 		,sourceMode:false
@@ -92,11 +92,9 @@
 	};
 	RealEditor.toolsFun = {
 		bold:{
-			boldMouseOver: function (el, e){}
-			,boldClick : function (el, e){
+			click : function (el, e){
 				this.execCommand('bold', false, null).focus();
 			}
-			,boldMouseleave : function (el, e){}
 		}
 		,italic:{click : function (el, e){
 				this.execCommand('italic', false, null).focus();
@@ -104,6 +102,15 @@
 		}
 		,underline:{click : function (el, e){
 				this.execCommand('underline', false, null).focus();
+			}
+		}
+		,font:{
+			click : function (el, e){
+				this.execCommand('FontName', false, 'Courier New').focus();
+			}
+			,mouseEnter: function (el, e){
+//				var fontList = $('<ul><li><a style="font-family:\'Serif\'">Serif</a></li></ul>');
+//				$(el).append(fontList);
 			}
 		}
 	};
@@ -118,7 +125,7 @@
 					,'image','unorderList','orderList','link','color'
 					,'font','fontSize','alignLeft', 'alignCenter', 'alignRight']
 				,mimi: ['bold','italic','underline','strikeout']
-				,full:['bold','italic','underline','strikeout']
+				,full:['bold','italic','underline','strikeout','font']
 			};
 			return this;
 		}
@@ -256,7 +263,7 @@
 			for(var i in tempTools){
 				var tempTool = this.tools[tempTools[i]];
 				if (typeof tempTool == 'undefined'){
-					break;
+					continue;
 				}else{
 					this.appendTool(tempTool);
 				}
@@ -266,9 +273,10 @@
 		,appendTool : function (ot){
 			var key = ot.key;
 			var label = !!ot.label ? ot.label : '';
-			var shortcutKey = !!ot.shortcutKey ? ot.shortcutKey : '';
+			var shortcutKey = !!ot.shortcutKey ? ot.shortcutKey : 0;
+			var shortcutKeyStr = !!shortcutKey ? '('+shortcutKey+')' : '';
 			var toolStr = '<span><a class="rltoolbutton" id="rltoolabutton'
-							+key+'" title="'+label + '(' + shortcutKey + ')'
+							+key+'" title="'+label + shortcutKeyStr
 							+'"><span class="rltoolicon rltoolicon-'
 							+key+'">'
 							+key+'</span></a></span>';
