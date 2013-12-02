@@ -12,8 +12,8 @@
 		});
 	};
 
-	var keyMap = {9:'Tab', 13:'Enter', 16 : 'Shift', 17 : 'Ctrl', 18 : 'Alt', 27 : 'Esc'
-			, 66 : 'B', 98: 'b', 73 : 'I', 105:'i', 85 : 'U', 117: 'u'};
+	var ctlKeyMap = {9:'Tab', 13:'Enter', 16 : 'Shift', 17 : 'Ctrl', 18 : 'Alt', 27 : 'Esc'}
+	var charKeyMap = {65: 'A',97: 'a', 66 : 'B', 98: 'b', 73 : 'I', 105:'i', 85 : 'U', 117: 'u'};
 
 	var RealEditor = function (i,el, o){
 		if (typeof(o) != "object"){
@@ -22,10 +22,12 @@
 
 		//
 		var userAgent=navigator.userAgent.toLowerCase();
-		this.isFirefox=/firefox/.test(userAgent);
-		this.isOpera=/opera/.test(userAgent);
-		this.isSafari=/webkit/.test(userAgent);
-		this.isIE=/msie/.test(userAgent)&&!/opera/.test(userAgent);
+		this.isFirefox = /firefox/.test(userAgent);
+		this.isOpera = /opera/.test(userAgent);
+		this.isSafari = /webkit/.test(userAgent);
+		this.isIE = /msie/.test(userAgent) && !this.isIE;
+		this.browserVersion = (userAgent.match(/.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/)||[0,"0"])[1];
+		this.isIElt8 = this.isIE && (this.browserVersion-0 <= 8);
 
 		//添加工具栏的工具
 		//If you want add tool to tool bar. You must be do three steps:
@@ -35,14 +37,14 @@
 
 		//This must be jquery event name
 		this.tools = {
-			bold : {key: 'bold', label:'粗体', event:{click:'click'}
+			bold : {key: 'bold', label:'粗体', event:{click:'click', mousedown:'mousedown'}
 					,shortcutKey : 'Ctrl+B'
 				}
 			,italic : {key: 'italic',label:'斜体',event:{click:'click'},shortcutKey : 'Ctrl+I'
 				}
 			,underline : {key: 'underline',label:'下划线',event:{click:'click'},shortcutKey : 'Ctrl+U'
 				}
-			,font : {key: 'font',label:'字体',event:{click:'click', mouseenter : 'mouseEnter',mouseleave : 'mouseLeave' }
+			,font : {key: 'font',label:'字体',event:{click:'click', mouseenter : 'mouseEnter',mouseleave : 'mouseLeave' },shortcutKey : 'Ctrl+A'
 				}
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
@@ -95,6 +97,9 @@
 			click : function (el, e){
 				this.execCommand('bold', false, null).focus();
 			}
+			,mousedown : function (el, e){
+				return false;
+			}
 		}
 		,italic:{click : function (el, e){
 				this.execCommand('italic', false, null).focus();
@@ -145,7 +150,7 @@
 			return '<html><head>' + iframeHeaderHtml + '</head><body></body></html>';
 		}
 		,setEditable : function (b){
-			if(this.isIE){
+			if(this.isIElt8){
 				this.mrl_body.contentEditable = b;
 			}else{
 				var design = b == true ? 'on' : 'off';
@@ -293,9 +298,9 @@
 			if (!node){
 				node = this.mrl_body;
 			}
-			if (document.selection) {
-			  sel.moveStart('character', pos);
-			  sel.select();
+			if (this.isIElt8) {
+			  range.moveStart('character', pos);
+			  range.select();
 			}else {
 				try{
 					range.setStart(node, pos);
@@ -334,16 +339,17 @@
 		}
 		,bindKeyEvent : function (){
 			var _this = this;
-			$(this.mrl_document).keypress(function (e){
+			$(_this.mrl_document).keydown(function (e){
 				(function (_e){
 					for (var t in _this.tools){
-					var tb = _this.tools[t].key;
-					var ts = _this.tools[t].shortcutKey;
-					if (_this.equalShortcut(_e, ts)){
-						$("#rltoolabutton"+tb).trigger('click');
+						var tb = _this.tools[t].key;
+						var ts = _this.tools[t].shortcutKey;
+						if (_this.equalShortcut(_e, ts)){
+							$("#rltoolabutton"+tb).trigger('click');
+							_e.preventDefault();
+						}
 					}
-					_e.preventDefault();
-				}})(e);
+				})(e);
 			});
 		}
 		,equalShortcut : function (keyEvent, shortcutStr){
