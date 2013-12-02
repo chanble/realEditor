@@ -363,7 +363,7 @@
 				var bCtrl = !(this.inArray(ctrlStr, scArray) ^ ctrl);
 				var bAlt = !(this.inArray(altStr, scArray) ^ alt);
 				var bShift = !(this.inArray(shiftStr, scArray) ^ shift);
-				var bKey = this.inArray(keyMap[kc], scArray);
+				var bKey = this.inArray(charKeyMap[kc], scArray);
 				return bCtrl && bAlt && bShift && bKey;
 			}else{
 				return false;
