@@ -12,8 +12,8 @@
 		});
 	};
 
-	var keyMap = {9:'Tab', 13:'Enter', 16 : 'Shift', 17 : 'Ctrl', 18 : 'Alt', 27 : 'Esc'
-			, 66 : 'B', 98: 'b', 73 : 'I', 105:'i', 85 : 'U', 117: 'u'};
+	var ctlKeyMap = {9:'Tab', 13:'Enter', 16 : 'Shift', 17 : 'Ctrl', 18 : 'Alt', 27 : 'Esc'}
+	var charKeyMap = {65: 'A',97: 'a', 66 : 'B', 98: 'b', 73 : 'I', 105:'i', 85 : 'U', 117: 'u'};
 
 	var RealEditor = function (i,el, o){
 		if (typeof(o) != "object"){
@@ -22,10 +22,12 @@
 
 		//
 		var userAgent=navigator.userAgent.toLowerCase();
-		this.isFirefox=/firefox/.test(userAgent);
-		this.isOpera=/opera/.test(userAgent);
-		this.isSafari=/webkit/.test(userAgent);
-		this.isIE=/msie/.test(userAgent)&&!/opera/.test(userAgent);
+		this.isFirefox = /firefox/.test(userAgent);
+		this.isOpera = /opera/.test(userAgent);
+		this.isSafari = /webkit/.test(userAgent);
+		this.isIE = /msie/.test(userAgent) && !this.isIE;
+		this.browserVersion = (userAgent.match(/.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/)||[0,"0"])[1];
+		this.isIElt8 = this.isIE && (this.browserVersion-0 <= 8);
 
 		//添加工具栏的工具
 		//If you want add tool to tool bar. You must be do three steps:
@@ -35,9 +37,7 @@
 
 		//This must be jquery event name
 		this.tools = {
-			bold : {key: 'bold', label:'粗体', event:{mouseenter:'boldMouseOver'
-									, click:'boldClick'
-									,mouseleave:'boldMouseleave'}
+			bold : {key: 'bold', label:'粗体', event:{click:'click', mousedown:'mousedown'}
 					,shortcutKey : 'Ctrl+B'
 				}
 			,italic : {key: 'italic',label:'斜体',event:{click:'click'},shortcutKey : 'Ctrl+I'
@@ -83,7 +83,7 @@
 	};
 	RealEditor.options = {};
 	RealEditor.DEFAULT_OPTS = {
-		tools:'standard'
+		tools:'full'
 		,skin:'default'
 		,skinPath:'js/realeditor/skin'
 		,sourceMode:false
@@ -92,11 +92,12 @@
 	};
 	RealEditor.toolsFun = {
 		bold:{
-			boldMouseOver: function (el, e){}
-			,boldClick : function (el, e){
+			click : function (el, e){
 				this.execCommand('bold', false, null).focus();
 			}
-			,boldMouseleave : function (el, e){}
+			,mousedown : function (el, e){
+				return false;
+			}
 		}
 		,italic:{click : function (el, e){
 				this.execCommand('italic', false, null).focus();
@@ -118,7 +119,7 @@
 					,'image','unorderList','orderList','link','color'
 					,'font','fontSize','alignLeft', 'alignCenter', 'alignRight']
 				,mimi: ['bold','italic','underline','strikeout']
-				,full:['bold','italic','underline','strikeout']
+				,full:['bold','italic','underline','strikeout','font']
 			};
 			return this;
 		}
@@ -138,7 +139,7 @@
 			return '<html><head>' + iframeHeaderHtml + '</head><body></body></html>';
 		}
 		,setEditable : function (b){
-			if(this.isIE){
+			if(this.isIElt8){
 				this.mrl_body.contentEditable = b;
 			}else{
 				var design = b == true ? 'on' : 'off';
@@ -256,7 +257,7 @@
 			for(var i in tempTools){
 				var tempTool = this.tools[tempTools[i]];
 				if (typeof tempTool == 'undefined'){
-					break;
+					continue;
 				}else{
 					this.appendTool(tempTool);
 				}
@@ -266,9 +267,10 @@
 		,appendTool : function (ot){
 			var key = ot.key;
 			var label = !!ot.label ? ot.label : '';
-			var shortcutKey = !!ot.shortcutKey ? ot.shortcutKey : '';
+			var shortcutKey = !!ot.shortcutKey ? ot.shortcutKey : 0;
+			var shortcutKeyStr = !!shortcutKey ? '('+shortcutKey+')' : '';
 			var toolStr = '<span><a class="rltoolbutton" id="rltoolabutton'
-							+key+'" title="'+label + '(' + shortcutKey + ')'
+							+key+'" title="'+label + shortcutKeyStr
 							+'"><span class="rltoolicon rltoolicon-'
 							+key+'">'
 							+key+'</span></a></span>';
@@ -285,9 +287,9 @@
 			if (!node){
 				node = this.mrl_body;
 			}
-			if (document.selection) {
-			  sel.moveStart('character', pos);
-			  sel.select();
+			if (this.isIElt8) {
+			  range.moveStart('character', pos);
+			  range.select();
 			}else {
 				try{
 					range.setStart(node, pos);
@@ -326,16 +328,17 @@
 		}
 		,bindKeyEvent : function (){
 			var _this = this;
-			$(this.mrl_document).keypress(function (e){
+			$(_this.mrl_document).keydown(function (e){
 				(function (_e){
 					for (var t in _this.tools){
-					var tb = _this.tools[t].key;
-					var ts = _this.tools[t].shortcutKey;
-					if (_this.equalShortcut(_e, ts)){
-						$("#rltoolabutton"+tb).trigger('click');
+						var tb = _this.tools[t].key;
+						var ts = _this.tools[t].shortcutKey;
+						if (_this.equalShortcut(_e, ts)){
+							$("#rltoolabutton"+tb).trigger('click');
+							_e.preventDefault();
+						}
 					}
-					_e.preventDefault();
-				}})(e);
+				})(e);
 			});
 		}
 		,equalShortcut : function (keyEvent, shortcutStr){
@@ -349,7 +352,7 @@
 				var bCtrl = !(this.inArray(ctrlStr, scArray) ^ ctrl);
 				var bAlt = !(this.inArray(altStr, scArray) ^ alt);
 				var bShift = !(this.inArray(shiftStr, scArray) ^ shift);
-				var bKey = this.inArray(keyMap[kc], scArray);
+				var bKey = this.inArray(charKeyMap[kc], scArray);
 				return bCtrl && bAlt && bShift && bKey;
 			}else{
 				return false;
