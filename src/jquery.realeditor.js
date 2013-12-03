@@ -44,8 +44,6 @@
 				}
 			,underline : {key: 'underline',label:'下划线',event:{click:'click'},shortcutKey : 'Ctrl+U'
 				}
-			,font : {key: 'font',label:'字体',event:{click:'click', mouseenter : 'mouseEnter',mouseleave : 'mouseLeave' },shortcutKey : 'Ctrl+A'
-				}
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
 		this._init();
@@ -107,15 +105,6 @@
 		}
 		,underline:{click : function (el, e){
 				this.execCommand('underline', false, null).focus();
-			}
-		}
-		,font:{
-			click : function (el, e){
-				this.execCommand('FontName', false, 'Courier New').focus();
-			}
-			,mouseEnter: function (el, e){
-//				var fontList = $('<ul><li><a style="font-family:\'Serif\'">Serif</a></li></ul>');
-//				$(el).append(fontList);
 			}
 		}
 	};
