@@ -46,6 +46,13 @@ Description: container style
 .rleditor_tool span.rltoolicon-font{
 	background-position: -141px -43px;
 }
+.rleditor_tool span ul.list-font{
+	position: absolute;
+	border: 1px solid;
+	list-style: none;
+	margin: 0px;
+	background-color: #ffffff;
+}
 
 .rleditor_tool span{
 	float: left;

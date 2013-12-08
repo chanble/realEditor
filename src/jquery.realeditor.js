@@ -44,7 +44,7 @@
 				}
 			,underline : {key: 'underline',label:'下划线',event:{click:'click'},shortcutKey : 'Ctrl+U'
 				}
-			,font : {key: 'font',label:'字体',event:{click:'click', mouseenter : 'mouseEnter',mouseleave : 'mouseLeave' },shortcutKey : 'Ctrl+A'
+			,font : {key: 'font',label:'字体',event:{click:'click', mouseenter : 'mouseEnter'}
 				}
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
@@ -109,13 +109,39 @@
 				this.execCommand('underline', false, null).focus();
 			}
 		}
-		,font:{
+		,font: {
 			click : function (el, e){
-				this.execCommand('FontName', false, 'Courier New').focus();
+				//this.execCommand('FontName', false, 'Courier New').focus();
 			}
 			,mouseEnter: function (el, e){
-//				var fontList = $('<ul><li><a style="font-family:\'Serif\'">Serif</a></li></ul>');
-//				$(el).append(fontList);
+				var jel = $(el);
+				var fontUL = $('<ul></ul>');
+				var elOffset = jel.offset();
+				var ulLeft = elOffset.left
+					,ulTop = elOffset.top + jel.innerHeight();
+				var fontList = $('<li><a style="font-family:\'Serif\'">Serif</a></li>');
+				var timeOut;
+				fontUL.height($(this.mrl_document).height());
+				fontUL.append(fontList);
+				fontUL.addClass('list-font');
+				fontUL.css({position: 'absolute', left:ulLeft, top:ulTop});
+				jel.after(fontUL);
+				jel.mouseleave(function (event){
+					timeOut = setTimeout(function (){
+						fontUL.remove();
+					}, 200);
+				});
+				fontUL.mouseenter(function (event){
+					clearTimeout(timeOut);
+				})
+				.mouseleave(function (event){
+					setTimeout(function (){
+						fontUL.remove();
+					}, 200);
+				});
+			}
+			,mouseLeave : function (el, e){
+
 			}
 		}
 	};
