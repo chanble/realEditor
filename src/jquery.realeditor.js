@@ -44,6 +44,8 @@
 				}
 			,underline : {key: 'underline',label:'下划线',event:{click:'click'},shortcutKey : 'Ctrl+U'
 				}
+			,font : {key: 'font',label:'字体',event:{click:'click', mouseenter : 'mouseEnter'}
+				}
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
 		this._init();
@@ -105,6 +107,69 @@
 		}
 		,underline:{click : function (el, e){
 				this.execCommand('underline', false, null).focus();
+			}
+		}
+		,font: {
+			click : function (el, e){
+				//this.execCommand('FontName', false, 'Courier New').focus();
+			}
+			,mouseEnter: function (el, e){
+				var that = this;
+				var jel = $(el),fontUL = $('<ul></ul>')
+					, fontList = '', elOffset = jel.offset();
+				var ulLeft = elOffset.left
+					,ulTop = elOffset.top + jel.innerHeight();
+				var fonts = [{key:'SimSun', title:'宋体',label:'宋体'}
+							,{key:'FangSong_GB2312', title:'仿宋',label:'仿宋'}
+							,{key:'SimHei', title:'黑体',label:'黑体'}
+							,{key:'KaiTi_GB2312', title:'楷体',label:'楷体'}
+							,{key:'Microsoft YaHei', title:'微软雅黑',label:'微软雅黑'}
+							,{key:'Arial', title:'Arial',label:'Arial'}
+							,{key:'Arial Black', title:'Arial Black',label:'Arial Black'}
+							,{key:'Sans', title:'Sans',label:'Sans'}
+							,{key:'Comic Sans MS', title:'Comic Sans MS',label:'Comic Sans MS'}
+							,{key:'Helvetica', title:'Helvetica',label:'Helvetica'}
+							,{key:'Impact', title:'Impact',label:'Impact'}
+							,{key:'Courier', title:'Courier',label:'Courier'}
+							,{key:'Courier New', title:'Courier New',label:'Courier New'}
+							,{key:'System', title:'System',label:'System'}
+							,{key:'Times New Roman', title:'Times New Roman',label:'Times New Roman'}
+							,{key:'Tahoma', title:'Tahoma',label:'Tahoma'}
+							,{key:'Serif', title:'Serif',label:'Serif'}
+							,{key:'Verdana', title:'Verdana',label:'Verdana'}];
+				for(var i in fonts){
+					fontList += '<li><a style="font-family:'
+							+fonts[i].key+'" title="'+fonts[i].title+'">'
+							+fonts[i].label+'</a></li>'
+				}
+				var timeOut, ulHeight = 250;
+				fontUL.append(fontList)
+					.addClass('ul-list')
+					.css({position: 'absolute', left:ulLeft, top:ulTop, width:'150px'})
+					.height(ulHeight);
+				jel.after(fontUL);
+				jel.mouseleave(function (){
+					timeOut = setTimeout(function (){
+						fontUL.remove();
+					}, 200);
+				});
+				fontUL.mouseenter(function (){
+					clearTimeout(timeOut);
+				})
+				.mouseleave(function (){
+					setTimeout(function (){
+						fontUL.remove();
+					}, 200);
+				});
+				$("li", fontUL).click(function (){
+					var fn = $('a', this).css('font-family');
+					fontUL.remove();
+					that.execCommand('FontName', false, fn).focus();
+				});
+
+			}
+			,mouseLeave : function (el, e){
+
 			}
 		}
 	};
