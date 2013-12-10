@@ -135,6 +135,7 @@
 							,{key:'System', title:'System',label:'System'}
 							,{key:'Times New Roman', title:'Times New Roman',label:'Times New Roman'}
 							,{key:'Tahoma', title:'Tahoma',label:'Tahoma'}
+							,{key:'Consolas', title:'Consolas',label:'Consolas'}
 							,{key:'Serif', title:'Serif',label:'Serif'}
 							,{key:'Verdana', title:'Verdana',label:'Verdana'}];
 				for(var i in fonts){
