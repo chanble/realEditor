@@ -44,6 +44,8 @@
 				}
 			,underline : {key: 'underline',label:'下划线',event:{click:'click'},shortcutKey : 'Ctrl+U'
 				}
+			,strikeout : {key: 'strikeout',label:'中划线',event:{click:'click'}
+				}
 			,font : {key: 'font',label:'字体',event:{click:'click', mouseenter : 'mouseEnter'}
 				}
 		};
@@ -107,6 +109,10 @@
 		}
 		,underline:{click : function (el, e){
 				this.execCommand('underline', false, null).focus();
+			}
+		}
+		,strikeout:{click : function (el, e){
+				this.execCommand('StrikeThrough', false, null).focus();
 			}
 		}
 		,font: {
