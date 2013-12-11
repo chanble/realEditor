@@ -44,6 +44,8 @@
 				}
 			,underline : {key: 'underline',label:'下划线',event:{click:'click'},shortcutKey : 'Ctrl+U'
 				}
+			,strikeout : {key: 'strikeout',label:'中划线',event:{click:'click'}
+				}
 			,font : {key: 'font',label:'字体',event:{click:'click', mouseenter : 'mouseEnter'}
 				}
 		};
@@ -109,6 +111,10 @@
 				this.execCommand('underline', false, null).focus();
 			}
 		}
+		,strikeout:{click : function (el, e){
+				this.execCommand('StrikeThrough', false, null).focus();
+			}
+		}
 		,font: {
 			click : function (el, e){
 				//this.execCommand('FontName', false, 'Courier New').focus();
@@ -135,6 +141,7 @@
 							,{key:'System', title:'System',label:'System'}
 							,{key:'Times New Roman', title:'Times New Roman',label:'Times New Roman'}
 							,{key:'Tahoma', title:'Tahoma',label:'Tahoma'}
+							,{key:'Consolas', title:'Consolas',label:'Consolas'}
 							,{key:'Serif', title:'Serif',label:'Serif'}
 							,{key:'Verdana', title:'Verdana',label:'Verdana'}];
 				for(var i in fonts){

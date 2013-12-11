@@ -43,6 +43,9 @@ Description: container style
 .rleditor_tool span.rltoolicon-underline{
 	background-position: 3px -160px;
 }
+.rleditor_tool span.rltoolicon-strikeout{
+	background-position: -21px -160px;
+}
 .rleditor_tool span.rltoolicon-font{
 	background-position: -141px -43px;
 }
