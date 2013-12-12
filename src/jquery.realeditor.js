@@ -29,6 +29,8 @@
 		this.browserVersion = (userAgent.match(/.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/)||[0,"0"])[1];
 		this.isIElt8 = this.isIE && (this.browserVersion-0 <= 8);
 
+
+		this.mode = 1;//debug
 		//添加工具栏的工具
 		//If you want add tool to tool bar. You must be do three steps:
 		//1,Add tool bar element: add a k-v pair to this.tools object like tool-bold
@@ -46,7 +48,9 @@
 				}
 			,strikeout : {key: 'strikeout',label:'中划线',event:{click:'click'}
 				}
-			,font : {key: 'font',label:'字体',event:{click:'click', mouseenter : 'mouseEnter'}
+			,font : {key: 'font',label:'字体',event:{mouseenter : 'mouseEnter'}
+				}
+			,fontSize : {key: 'fontSize',label:'字体大小',event:{mouseenter : 'mouseEnter'}
 				}
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
@@ -145,8 +149,8 @@
 							,{key:'Serif', title:'Serif',label:'Serif'}
 							,{key:'Verdana', title:'Verdana',label:'Verdana'}];
 				for(var i in fonts){
-					fontList += '<li><a style="font-family:'
-							+fonts[i].key+'" title="'+fonts[i].title+'">'
+					fontList += '<li title="'+fonts[i].title+'"><a style="font-family:'
+							+fonts[i].key+'">'
 							+fonts[i].label+'</a></li>'
 				}
 				var timeOut, ulHeight = 250;
@@ -175,8 +179,53 @@
 				});
 
 			}
-			,mouseLeave : function (el, e){
-
+		}
+		,fontSize : {
+			mouseEnter: function (el, e){
+				var that = this;
+				var jel = $(el),fontUL = $('<ul></ul>')
+					, fontList = '', elOffset = jel.offset();
+				var ulLeft = elOffset.left
+					,ulTop = elOffset.top + jel.innerHeight();
+				var fonts = [{key:'10px', title:'极小',label:'极小'}
+							,{key:'12px', title:'特小',label:'特小'}
+							,{key:'14px', title:'小',label:'小'}
+							,{key:'16px', title:'中等',label:'中等'}
+							,{key:'18px', title:'大',label:'大'}
+							,{key:'24px', title:'特大',label:'特大'}
+							,{key:'32px', title:'极大',label:'极大'}
+							];
+				for(var i in fonts){
+					fontList += '<li title="'+fonts[i].title
+							+'"><a style="font-size:'
+							+fonts[i].key+'">'
+							+fonts[i].label+'</a></li>'
+				}
+				var timeOut, ulHeight = 150;
+				fontUL.append(fontList)
+					.addClass('ul-list')
+					.css({position: 'absolute', left:ulLeft, top:ulTop, width:'100px'})
+					.height(ulHeight);
+				jel.after(fontUL)
+					.mouseleave(function (){
+						timeOut = setTimeout(function (){
+							fontUL.remove();
+						}, 200);
+					});
+				fontUL.mouseenter(function (){
+					clearTimeout(timeOut);
+				})
+				.mouseleave(function (){
+					setTimeout(function (){
+						fontUL.remove();
+					}, 200);
+				});
+				$("li", fontUL).click(function (){
+					var fs = $('a', this).css('font-size');
+					fs = that.matchNum(fs);
+					fontUL.remove();
+					that.execCommand('FontSize', false, fs).focus();
+				});
 			}
 		}
 	};
@@ -191,7 +240,7 @@
 					,'image','unorderList','orderList','link','color'
 					,'font','fontSize','alignLeft', 'alignCenter', 'alignRight']
 				,mimi: ['bold','italic','underline','strikeout']
-				,full:['bold','italic','underline','strikeout','font']
+				,full:['bold','italic','underline','strikeout','font', 'fontSize']
 			};
 			return this;
 		}
@@ -440,6 +489,10 @@
 				}
 			}
 			return false;
+		}
+		,matchNum : function (str){
+			var int = parseInt(str.match(/\d+/));
+			return int;
 		}
 	};
 })(jQuery);
