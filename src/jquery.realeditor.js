@@ -203,7 +203,7 @@
 				var timeOut, ulHeight = 150;
 				fontUL.append(fontList)
 					.addClass('ul-list')
-					.css({position: 'absolute', left:ulLeft, top:ulTop, width:'140px'})
+					.css({position: 'absolute', left:ulLeft, top:ulTop, width:'150px'})
 					.height(ulHeight);
 				jel.after(fontUL)
 					.mouseleave(function (){
