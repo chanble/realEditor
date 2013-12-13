@@ -37,7 +37,7 @@
 
 		//This must be jquery event name
 		this.tools = {
-			bold : {key: 'bold', label:'粗体', event:{click:'click', mousedown:'mousedown'}
+			bold : {key: 'bold', label:'粗体', event:{click:'click'}
 					,shortcutKey : 'Ctrl+B'
 				}
 			,italic : {key: 'italic',label:'斜体',event:{click:'click'},shortcutKey : 'Ctrl+I'
@@ -46,7 +46,9 @@
 				}
 			,strikeout : {key: 'strikeout',label:'中划线',event:{click:'click'}
 				}
-			,font : {key: 'font',label:'字体',event:{click:'click', mouseenter : 'mouseEnter'}
+			,font : {key: 'font',label:'字体',event:{mouseenter : 'mouseEnter'}
+				}
+			,fontSize : {key: 'fontSize',label:'字体大小',event:{mouseenter : 'mouseEnter'}
 				}
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
@@ -55,18 +57,16 @@
 			el = $(el);
 		}
 		this.setSkin();
-		var toolsHtml = this.getToolsHtml(),
-		iframeHtml = this.getIframeHtml(i),
+		var iframeHtml = this.getIframeHtml(i),
 		rlcontainerId = this.getContainerId(i),
 		html = '<span class="rleditor_container" id="'
 				+ rlcontainerId + '"><table cellspacing="0" cellpadding="0" style="display:inline-table;"><tbody><tr><td class="rleditor_tool">'
-				+ toolsHtml +'</td></tr><tr><td class="rleditor_content">'
+				+'</td></tr><tr><td class="rleditor_content">'
 				+ iframeHtml +'</td></tr></tbody></table></span>';
 		var iframeId = this.getIframId(i)
 		,elWidth = el.width()
 		,elHeight = el.height()
 		,elContent = el.text();
-		//var elOffset = el.offset();
 		el.after(html);
 		//隐藏文本框
 		this._hide(el);
@@ -74,16 +74,17 @@
 		this.mrl_contaioner = rlcontaioner;
 		rlcontaioner.width(elWidth);
 		$("td.rleditor_content", rlcontaioner).width(elWidth).height(elHeight);
-		//rlcontaioner.offset(elOffset);//设置位置
+
 		//init tools
 		this.initTools();
 		var rl_iframe = $('#'+iframeId);
 		this.mrl_iframe = rl_iframe[0];
 		this.mrl_window = this.mrl_iframe.contentWindow;
 		this.mrl_document = this.mrl_window.document;
-		this.initIframeContent(this.getIframeContentHtml());
-		this.setEditable(true).appendText(elContent).setCaretPosition(elContent.length);
-		this.bindKeyEvent();
+		this.mrl_body = null;
+		this._initIframeContent(this.getIframeContentHtml()+elContent)
+			._initThisBody().setEditable(true).setCaretPosition(elContent.length)
+			.bindKeyEvent();
 	};
 	RealEditor.options = {};
 	RealEditor.DEFAULT_OPTS = {
@@ -99,9 +100,6 @@
 			click : function (el, e){
 				this.execCommand('bold', false, null).focus();
 			}
-			,mousedown : function (el, e){
-				return false;
-			}
 		}
 		,italic:{click : function (el, e){
 				this.execCommand('italic', false, null).focus();
@@ -116,10 +114,7 @@
 			}
 		}
 		,font: {
-			click : function (el, e){
-				//this.execCommand('FontName', false, 'Courier New').focus();
-			}
-			,mouseEnter: function (el, e){
+			mouseEnter: function (el, e){
 				var that = this;
 				var jel = $(el),fontUL = $('<ul></ul>')
 					, fontList = '', elOffset = jel.offset();
@@ -145,8 +140,8 @@
 							,{key:'Serif', title:'Serif',label:'Serif'}
 							,{key:'Verdana', title:'Verdana',label:'Verdana'}];
 				for(var i in fonts){
-					fontList += '<li><a style="font-family:'
-							+fonts[i].key+'" title="'+fonts[i].title+'">'
+					fontList += '<li title="'+fonts[i].title+'"><a style="font-family:'
+							+fonts[i].key+'">'
 							+fonts[i].label+'</a></li>'
 				}
 				var timeOut, ulHeight = 250;
@@ -175,8 +170,51 @@
 				});
 
 			}
-			,mouseLeave : function (el, e){
-
+		}
+		,fontSize : {
+			mouseEnter: function (el, e){
+				var that = this;
+				var jel = $(el),fontUL = $('<ul></ul>')
+					, fontList = '', elOffset = jel.offset();
+				var ulLeft = elOffset.left
+					,ulTop = elOffset.top + jel.innerHeight();
+				var fonts = [{key:'1', title:'极小',label:'极小'}
+							,{key:'2', title:'特小',label:'特小'}
+							,{key:'3', title:'小',label:'小'}
+							,{key:'4', title:'中等',label:'中等'}
+							,{key:'5', title:'大',label:'大'}
+							,{key:'6', title:'特大',label:'特大'}
+							,{key:'7', title:'极大',label:'极大'}];
+				for(var i in fonts){
+					fontList += '<li title="'+fonts[i].title
+							+'"><a><font size="'
+							+fonts[i].key+'">'
+							+fonts[i].label+'</font></a></li>'
+				}
+				var timeOut, ulHeight = 150;
+				fontUL.append(fontList)
+					.addClass('ul-list')
+					.css({position: 'absolute', left:ulLeft, top:ulTop, width:'150px'})
+					.height(ulHeight);
+				jel.after(fontUL)
+					.mouseleave(function (){
+						timeOut = setTimeout(function (){
+							fontUL.remove();
+						}, 200);
+					});
+				fontUL.mouseenter(function (){
+					clearTimeout(timeOut);
+				})
+				.mouseleave(function (){
+					setTimeout(function (){
+						fontUL.remove();
+					}, 200);
+				});
+				$("li", fontUL).click(function (){
+					var fs = $('font', this).attr('size');
+					fontUL.remove();
+					that.execCommand('FontSize', false, fs).focus();
+				});
 			}
 		}
 	};
@@ -191,12 +229,13 @@
 					,'image','unorderList','orderList','link','color'
 					,'font','fontSize','alignLeft', 'alignCenter', 'alignRight']
 				,mimi: ['bold','italic','underline','strikeout']
-				,full:['bold','italic','underline','strikeout','font']
+				,full:['bold','italic','underline','strikeout','font', 'fontSize']
 			};
 			return this;
 		}
-		,getToolsHtml : function (){
-			return '';
+		,_initThisBody : function (){
+			this.mrl_body = this.mrl_document.body;
+			return this;
 		}
 		,appendToolsHtml : function (str){
 			$('td.rleditor_tool', this.mrl_contaioner).append(str);
@@ -229,9 +268,9 @@
 		,execCommand : function (command, aShowDefaultUI, aValue){
 			var aShowUI = !!aShowDefaultUI, state = false;
 			if (aValue !== undefined){
-				 state = this.mrl_document.execCommand(command, aShowUI, aValue);
+				 this.mrl_document.execCommand(command, aShowUI, aValue);
 			}else{
-				state = this.mrl_document.execCommand(command, aShowUI, null);
+				this.mrl_document.execCommand(command, aShowUI, null);
 			}
 			return this;
 		}
@@ -250,15 +289,17 @@
 			return '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><link rel="stylesheet" href="'
 						+skinPath+'/'+ skin+'/iframe.css"/>';
 		}
-		,initIframeContent : function (content){
+		,_initIframeContent : function (content){
+			return this.docWrite(content);
+		}
+		,docWrite : function (str){
 			var doc = this.mrl_document;
 			try{
 				doc.open();
-				doc.write(content);
+				doc.write(str);
 				doc.close();
-				this.mrl_body = doc.body;
 			}catch(e){
-				console.info(e);
+				console.error(e);
 			}
 			return this;
 		}
@@ -270,7 +311,7 @@
 		}
 		,appendText : function(str){
 			var newStr = this.convertHtml(str);
-			return this.appendHtml(newStr);
+			return this.docWrite(newStr);
 		}
 		// convert html mark to entity name
 		// 转换thml标签为实体名字
@@ -280,6 +321,7 @@
 			newStr = newStr.replace(/\s/g, '&nbsp;');
 			return newStr;
 		}
+		//
 		,appendHtml : function (str, start){
 			this.focus();
 			var sel = this.getSelection(), range = this.getRange();
@@ -341,7 +383,7 @@
 			var label = !!ot.label ? ot.label : '';
 			var shortcutKey = !!ot.shortcutKey ? ot.shortcutKey : 0;
 			var shortcutKeyStr = !!shortcutKey ? '('+shortcutKey+')' : '';
-			var toolStr = '<span><a class="rltoolbutton" id="rltoolabutton'
+			var toolStr = '<span><a href="#" class="rltoolbutton" id="rltoolabutton'
 							+key+'" title="'+label + shortcutKeyStr
 							+'"><span class="rltoolicon rltoolicon-'
 							+key+'">'
@@ -405,13 +447,14 @@
 					for (var t in _this.tools){
 						var tb = _this.tools[t].key;
 						var ts = _this.tools[t].shortcutKey;
-						if (_this.equalShortcut(_e, ts)){
+						if (!!ts && _this.equalShortcut(_e, ts)){
 							$("#rltoolabutton"+tb).trigger('click');
 							_e.preventDefault();
 						}
 					}
 				})(e);
 			});
+			return this;
 		}
 		,equalShortcut : function (keyEvent, shortcutStr){
 			var ctrl = !!keyEvent.ctrlKey, ctrlStr = 'ctrl'
