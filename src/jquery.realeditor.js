@@ -187,24 +187,23 @@
 					, fontList = '', elOffset = jel.offset();
 				var ulLeft = elOffset.left
 					,ulTop = elOffset.top + jel.innerHeight();
-				var fonts = [{key:'10px', title:'极小',label:'极小'}
-							,{key:'12px', title:'特小',label:'特小'}
-							,{key:'14px', title:'小',label:'小'}
-							,{key:'16px', title:'中等',label:'中等'}
-							,{key:'18px', title:'大',label:'大'}
-							,{key:'24px', title:'特大',label:'特大'}
-							,{key:'32px', title:'极大',label:'极大'}
-							];
+				var fonts = [{key:'1', title:'极小',label:'极小'}
+							,{key:'2', title:'特小',label:'特小'}
+							,{key:'3', title:'小',label:'小'}
+							,{key:'4', title:'中等',label:'中等'}
+							,{key:'5', title:'大',label:'大'}
+							,{key:'6', title:'特大',label:'特大'}
+							,{key:'7', title:'极大',label:'极大'}];
 				for(var i in fonts){
 					fontList += '<li title="'+fonts[i].title
-							+'"><a style="font-size:'
+							+'"><a><font size="'
 							+fonts[i].key+'">'
-							+fonts[i].label+'</a></li>'
+							+fonts[i].label+'</font></a></li>'
 				}
 				var timeOut, ulHeight = 150;
 				fontUL.append(fontList)
 					.addClass('ul-list')
-					.css({position: 'absolute', left:ulLeft, top:ulTop, width:'100px'})
+					.css({position: 'absolute', left:ulLeft, top:ulTop, width:'140px'})
 					.height(ulHeight);
 				jel.after(fontUL)
 					.mouseleave(function (){
@@ -221,8 +220,7 @@
 					}, 200);
 				});
 				$("li", fontUL).click(function (){
-					var fs = $('a', this).css('font-size');
-					fs = that.matchNum(fs);
+					var fs = $('font', this).attr('size');
 					fontUL.remove();
 					that.execCommand('FontSize', false, fs).focus();
 				});
@@ -489,10 +487,6 @@
 				}
 			}
 			return false;
-		}
-		,matchNum : function (str){
-			var int = parseInt(str.match(/\d+/));
-			return int;
 		}
 	};
 })(jQuery);
