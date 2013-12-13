@@ -460,7 +460,7 @@
 					for (var t in _this.tools){
 						var tb = _this.tools[t].key;
 						var ts = _this.tools[t].shortcutKey;
-						if (_this.equalShortcut(_e, ts)){
+						if (!!ts && _this.equalShortcut(_e, ts)){
 							$("#rltoolabutton"+tb).trigger('click');
 							_e.preventDefault();
 						}
