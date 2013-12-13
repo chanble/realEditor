@@ -29,8 +29,6 @@
 		this.browserVersion = (userAgent.match(/.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/)||[0,"0"])[1];
 		this.isIElt8 = this.isIE && (this.browserVersion-0 <= 8);
 
-
-		this.mode = 1;//debug
 		//添加工具栏的工具
 		//If you want add tool to tool bar. You must be do three steps:
 		//1,Add tool bar element: add a k-v pair to this.tools object like tool-bold
@@ -39,7 +37,7 @@
 
 		//This must be jquery event name
 		this.tools = {
-			bold : {key: 'bold', label:'粗体', event:{click:'click', mousedown:'mousedown'}
+			bold : {key: 'bold', label:'粗体', event:{click:'click'}
 					,shortcutKey : 'Ctrl+B'
 				}
 			,italic : {key: 'italic',label:'斜体',event:{click:'click'},shortcutKey : 'Ctrl+I'
@@ -59,18 +57,16 @@
 			el = $(el);
 		}
 		this.setSkin();
-		var toolsHtml = this.getToolsHtml(),
-		iframeHtml = this.getIframeHtml(i),
+		var iframeHtml = this.getIframeHtml(i),
 		rlcontainerId = this.getContainerId(i),
 		html = '<span class="rleditor_container" id="'
 				+ rlcontainerId + '"><table cellspacing="0" cellpadding="0" style="display:inline-table;"><tbody><tr><td class="rleditor_tool">'
-				+ toolsHtml +'</td></tr><tr><td class="rleditor_content">'
+				+'</td></tr><tr><td class="rleditor_content">'
 				+ iframeHtml +'</td></tr></tbody></table></span>';
 		var iframeId = this.getIframId(i)
 		,elWidth = el.width()
 		,elHeight = el.height()
 		,elContent = el.text();
-		//var elOffset = el.offset();
 		el.after(html);
 		//隐藏文本框
 		this._hide(el);
@@ -78,7 +74,7 @@
 		this.mrl_contaioner = rlcontaioner;
 		rlcontaioner.width(elWidth);
 		$("td.rleditor_content", rlcontaioner).width(elWidth).height(elHeight);
-		//rlcontaioner.offset(elOffset);//设置位置
+
 		//init tools
 		this.initTools();
 		var rl_iframe = $('#'+iframeId);
@@ -104,9 +100,6 @@
 			click : function (el, e){
 				this.execCommand('bold', false, null).focus();
 			}
-			,mousedown : function (el, e){
-				return false;
-			}
 		}
 		,italic:{click : function (el, e){
 				this.execCommand('italic', false, null).focus();
@@ -121,10 +114,7 @@
 			}
 		}
 		,font: {
-			click : function (el, e){
-				//this.execCommand('FontName', false, 'Courier New').focus();
-			}
-			,mouseEnter: function (el, e){
+			mouseEnter: function (el, e){
 				var that = this;
 				var jel = $(el),fontUL = $('<ul></ul>')
 					, fontList = '', elOffset = jel.offset();
@@ -247,9 +237,6 @@
 			this.mrl_body = this.mrl_document.body;
 			return this;
 		}
-		,getToolsHtml : function (){
-			return '';
-		}
 		,appendToolsHtml : function (str){
 			$('td.rleditor_tool', this.mrl_contaioner).append(str);
 			return this;
@@ -281,9 +268,9 @@
 		,execCommand : function (command, aShowDefaultUI, aValue){
 			var aShowUI = !!aShowDefaultUI, state = false;
 			if (aValue !== undefined){
-				 state = this.mrl_document.execCommand(command, aShowUI, aValue);
+				 this.mrl_document.execCommand(command, aShowUI, aValue);
 			}else{
-				state = this.mrl_document.execCommand(command, aShowUI, null);
+				this.mrl_document.execCommand(command, aShowUI, null);
 			}
 			return this;
 		}
@@ -396,7 +383,7 @@
 			var label = !!ot.label ? ot.label : '';
 			var shortcutKey = !!ot.shortcutKey ? ot.shortcutKey : 0;
 			var shortcutKeyStr = !!shortcutKey ? '('+shortcutKey+')' : '';
-			var toolStr = '<span><a class="rltoolbutton" id="rltoolabutton'
+			var toolStr = '<span><a href="#" class="rltoolbutton" id="rltoolabutton'
 							+key+'" title="'+label + shortcutKeyStr
 							+'"><span class="rltoolicon rltoolicon-'
 							+key+'">'
