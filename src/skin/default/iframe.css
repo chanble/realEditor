@@ -9,7 +9,4 @@ body{
 	border: 0px;
 	margin: 10px auto auto 5px;
 	line-height: 100%;
-	overflow-y: auto;
-	word-break: break-word;
-	word-wrap: break-word;
 }
