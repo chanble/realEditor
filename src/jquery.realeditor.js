@@ -85,9 +85,10 @@
 		this.mrl_iframe = rl_iframe[0];
 		this.mrl_window = this.mrl_iframe.contentWindow;
 		this.mrl_document = this.mrl_window.document;
-		this.initIframeContent(this.getIframeContentHtml());
-		this.setEditable(true).appendText(elContent).setCaretPosition(elContent.length);
-		this.bindKeyEvent();
+		this.mrl_body = null;
+		this._initIframeContent(this.getIframeContentHtml()+elContent)
+			._initThisBody().setEditable(true).setCaretPosition(elContent.length)
+			.bindKeyEvent();
 	};
 	RealEditor.options = {};
 	RealEditor.DEFAULT_OPTS = {
@@ -242,6 +243,10 @@
 			};
 			return this;
 		}
+		,_initThisBody : function (){
+			this.mrl_body = this.mrl_document.body;
+			return this;
+		}
 		,getToolsHtml : function (){
 			return '';
 		}
@@ -297,15 +302,17 @@
 			return '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><link rel="stylesheet" href="'
 						+skinPath+'/'+ skin+'/iframe.css"/>';
 		}
-		,initIframeContent : function (content){
+		,_initIframeContent : function (content){
+			return this.docWrite(content);
+		}
+		,docWrite : function (str){
 			var doc = this.mrl_document;
 			try{
 				doc.open();
-				doc.write(content);
+				doc.write(str);
 				doc.close();
-				this.mrl_body = doc.body;
 			}catch(e){
-				console.info(e);
+				console.error(e);
 			}
 			return this;
 		}
@@ -317,7 +324,7 @@
 		}
 		,appendText : function(str){
 			var newStr = this.convertHtml(str);
-			return this.appendHtml(newStr);
+			return this.docWrite(newStr);
 		}
 		// convert html mark to entity name
 		// 转换thml标签为实体名字
@@ -327,6 +334,7 @@
 			newStr = newStr.replace(/\s/g, '&nbsp;');
 			return newStr;
 		}
+		//
 		,appendHtml : function (str, start){
 			this.focus();
 			var sel = this.getSelection(), range = this.getRange();
@@ -459,6 +467,7 @@
 					}
 				})(e);
 			});
+			return this;
 		}
 		,equalShortcut : function (keyEvent, shortcutStr){
 			var ctrl = !!keyEvent.ctrlKey, ctrlStr = 'ctrl'
