@@ -37,16 +37,16 @@
 
 		//This must be jquery event name
 		this.tools = {
-			"bold" : {"key":"bold", "label":"粗体","shortcutKey" :"Ctrl+B"}
-			,"italic" : {"key":"italic","label":"斜体","shortcutKey" :"Ctrl+I"}
-			,"underline" : {"key":"underline","label":"下划线","shortcutKey" :"Ctrl+U"}
-			,"strikeout" : {"key":"strikethrough","label":"中划线","event":{"click":"click"}
+			"bold" : {"key":"bold", "label":"\u7c97\u4f53","shortcutKey" :"Ctrl+B"}//粗体
+			,"italic" : {"key":"italic","label":"\u659c\u4f53","shortcutKey" :"Ctrl+I"}//斜体
+			,"underline" : {"key":"underline","label":"\u4e0b\u5212\u7ebf","shortcutKey" :"Ctrl+U"}//下划线
+			,"strikeout" : {"key":"strikethrough","label":"\u4e2d\u5212\u7ebf","event":{"click":"click"}//中划线
 				}
-			,"font" : {"key":"fontName","label":"字体",event:{"mouseenter" :"mouseEnter"}
+			,"font" : {"key":"fontName","label":"\u5b57\u4f53","event":{"mouseenter" :"mouseEnter"}//字体
 				}
-			,"fontSize" : {"key":"fontSize","label":"字体大小","event":{"mouseenter":"mouseEnter"}
-				}
-			,"forecolor" : {"key":"forecolor","label":"字体颜色","event":{"mouseenter" :"mouseEnter"}
+			,"fontSize" : {"key":"fontSize","label":"\u5b57\u4f53大小","event":{"mouseenter":"mouseEnter"}
+				}//字体大小
+			,"forecolor" : {"key":"forecolor","label":"\u5b57\u4f53颜色","event":{"mouseenter" :"mouseEnter"}//字体颜色
 				}
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
