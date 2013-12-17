@@ -44,9 +44,9 @@
 				}
 			,"font" : {"key":"fontName","label":"\u5b57\u4f53","event":{"mouseenter" :"mouseEnter"}//字体
 				}
-			,"fontSize" : {"key":"fontSize","label":"\u5b57\u4f53大小","event":{"mouseenter":"mouseEnter"}
+			,"fontSize" : {"key":"fontSize","label":"\u5b57\u4f53\u5927\u5c0f","event":{"mouseenter":"mouseEnter"}
 				}//字体大小
-			,"forecolor" : {"key":"forecolor","label":"\u5b57\u4f53颜色","event":{"mouseenter" :"mouseEnter"}//字体颜色
+			,"forecolor" : {"key":"forecolor","label":"\u5b57\u4f53\u989c\u8272","event":{"mouseenter" :"mouseEnter"}//字体颜色
 				}
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
