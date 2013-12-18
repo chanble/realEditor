@@ -38,7 +38,12 @@
 		//This must be jquery event name
 		this.tools = {
 			"bold" : {"key":"bold", "label":"\u7c97\u4f53","shortcutKey" :"Ctrl+B"}//粗体
-			,"italic" : {"key":"italic","label":"\u659c\u4f53","shortcutKey" :"Ctrl+I"}//斜体
+			,"italic" : {"key":"italic","label":"\u659c\u4f53","shortcutKey" :"Ctrl+I"
+					, "event": {"click" : function (el,o,e){
+							this.execCommand(o.key, false, null).focus();
+						}
+					}
+			}//斜体
 			,"underline" : {"key":"underline","label":"\u4e0b\u5212\u7ebf","shortcutKey" :"Ctrl+U"}//下划线
 			,"strikeout" : {"key":"strikethrough","label":"\u4e2d\u5212\u7ebf","event":{"click":"click"}//中划线
 				}
@@ -47,6 +52,8 @@
 			,"fontSize" : {"key":"fontSize","label":"\u5b57\u4f53\u5927\u5c0f","event":{"mouseenter":"mouseEnter"}
 				}//字体大小
 			,"forecolor" : {"key":"forecolor","label":"\u5b57\u4f53\u989c\u8272","event":{"mouseenter" :"mouseEnter"}//字体颜色
+				}
+			,"backcolor" : {"key":"backcolor","label":"\u80cc\u666f\u8272","event":{"mouseenter" :"mouseEnter"}//背景色
 				}
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
@@ -386,6 +393,112 @@
 				});
 			}
 		}
+		,backcolor :{
+			mouseEnter:function (el,o,e){
+				var that = this;
+				var jel = $(el),colorDiv
+						= $('<div style="border: #999 1px solid;background-color: #fff; padding: 5px;"></div>')
+					, fontList = '', elOffset = jel.offset();
+				var ulLeft = elOffset.left
+					,ulTop = elOffset.top + jel.innerHeight();
+				var colors = [{"key":"#FFFFFF", "label":"White","title":"\u767d\u8272"}//白色
+						,{"key":"#D3D3D3","label":"LightGray","title":"\u6d45\u7070\u8272"}//浅灰色
+						,{"key":"#808080","label":"Gray","title":"\u7070\u8272"}//灰色
+						,{"key":"#696969","label":"DimGray","title":"\u6697\u7070\u8272"}//暗灰色
+						,{"key":"#000000","label":"Black","title":"\u9ed1\u8272"}//黑色
+						,{"key":"#FFFF00","label":"Yellow","title":"\u9ec4\u8272"}//黄色
+						,{"key":"#FFF0F5","label":"LavenderBlush","title":"\u6de1\u7d2b\u8272"}
+						,{"key":"#FFE4C4","label":"Bisque","title":"\u9ec4\u8910\u8272"}
+						,{"key":"#FFD700","label":"Gold","title":"\u91d1\u9ec4\u8272"}
+						,{"key":"#FFC0CB","label":"Pink","title":"\u7c89\u7ea2\u8272"}
+						,{"key":"#FFA500","label":"Orange","title":"\u6a59\u8272"}
+						,{"key":"#FF8C00","label":"DarkOrange","title":"\u6df1\u6a59\u8272"}
+						,{"key":"#FF7F50","label":"Coral","title":"\u73ca\u745a\u8272"}
+						,{"key":"#FF4500","label":"OrangeRed","title":"\u6a58\u7ea2\u8272"}
+						,{"key":"#FF1493","label":"DeepPink","title":"\u6df1\u7c89\u8272"}
+						,{"key":"#FF0000","label":"Red","title":"\u7ea2\u8272"}
+						,{"key":"#FA8072","label":"Salmon","title":"\u7c89\u6a59\u8272"}
+						,{"key":"#F5FFFA","label":"MintCream","title":"\u8584\u8377\u4e73"}
+						,{"key":"#F5F5F5","label":"WhiteSmoke","title":"\u70df\u767d\u8272"}
+						,{"key":"#F5DEB3","label":"Wheat","title":"\u6de1\u8910\u8272"}
+						,{"key":"#F0FFFF","label":"Azure","title":"\u5929\u84dd\u8272"}
+						,{"key":"#F0F8FF","label":"AliceBlue","title":"\u6d45\u84dd\u8272"}
+						,{"key":"#F0E68C","label":"Khaki","title":"\u5361\u5176\u8272"}
+						,{"key":"#EE82EE","label":"Violet","title":"\u84dd\u7d2b\u8272"}
+						,{"key":"#E6E6FA","label":"Lavender","title":"\u6de1\u7d2b\u8272"}
+						,{"key":"#DDA0DD","label":"Plum","title":"\u7edb\u7d2b\u8272"}
+						,{"key":"#DC143C","label":"Crimson","title":"\u6df1\u7ea2\u8272"}
+						,{"key":"#D2B48C","label":"Tan","title":"\u68d5\u8910\u8272"}
+						,{"key":"#D2691E","label":"Chocolate","title":"\u5de7\u514b\u529b\u8272"}
+						,{"key":"#CD5C5C","label":"IndianRed","title":"\u5370\u5ea6\u8272"}
+						,{"key":"#BC8F8F","label":"RosyBrown","title":"\u73ab\u7470\u8272"}
+						,{"key":"#B22222","label":"FireBrick","title":"\u7816\u7ea2\u8272"}
+						,{"key":"#ADD8E6","label":"LightBlue","title":"\u6d45\u84dd\u8272"}
+						,{"key":"#A52A2A","label":"Brown","title":"\u68d5\u8272"}
+						,{"key":"#9ACD32","label":"YellowGreen","title":"\u9ec4\u7eff\u8272"}
+						,{"key":"#9400D3","label":"DarkViolet","title":"\u6697\u7d2b\u8272"}
+						,{"key":"#90EE90","label":"LightGreen","title":"\u6d45\u7eff\u8272"}
+						,{"key":"#8FBC8F","label":"DarkSeaGreen","title":"\u6df1\u6d77\u7eff"}
+						,{"key":"#8B0000","label":"DarkRed","title":"\u6df1\u7ea2\u8272"}
+						,{"key":"#8A2BE2","label":"BlueViolet","title":"\u84dd\u7d2b\u8272"}
+						,{"key":"#87CEEB","label":"SkyBlue","title":"\u5929\u84dd\u8272"}
+						,{"key":"#808000","label":"Olive","title":"\u6a44\u6984\u8272"}
+						,{"key":"#800080","label":"Purple","title":"\u7d2b\u8272"}
+						,{"key":"#800000","label":"Maroon","title":"\u8910\u7ea2\u8272"}
+						,{"key":"#7FFF00","label":"Chartreuse","title":"\u6d45\u7eff\u8272"}
+						,{"key":"#6495ED","label":"CornflowerBlue","title":"\u6d45\u84dd\u8272"}
+						,{"key":"#5F9EA0","label":"CadetBlue","title":"\u519b\u84dd\u8272"}
+						,{"key":"#4B0082","label":"Indigo","title":"\u975b\u84dd\u8272"}
+						,{"key":"#4682B4","label":"SteelBlue","title":"\u94a2\u9752\u8272"}
+						,{"key":"#4169E1","label":"RoyalBlue","title":"\u54c1\u84dd\u8272"}
+						,{"key":"#40E0D0","label":"Turquoise","title":"\u9752\u7eff\u8272"}
+						,{"key":"#2F4F4F","label":"DarkSlateGray","title":"\u58a8\u7eff\u8272"}
+						,{"key":"#2E8B57","label":"SeaGreen","title":"\u6d77\u7eff\u8272"}
+						,{"key":"#228B22","label":"ForestGreen","title":"\u8471\u7eff\u8272"}
+						,{"key":"#1E90FF","label":"DodgerBlue","title":"\u95ea\u84dd\u8272"}
+						,{"key":"#00FFFF","label":"Cyan","title":"\u9752\u8272"}
+						,{"key":"#00FF00","label":"Lime","title":"\u67e0\u6aac\u8272"}
+						,{"key":"#008080","label":"Teal","title":"\u84dd\u7eff\u8272"}
+						,{"key":"#008000","label":"Green","title":"\u7eff\u8272"}
+						,{"key":"#0000FF","label":"Blue","title":"\u84dd\u8272"}
+						,{"key":"#00008B","label":"DarkBlue","title":"\u6df1\u84dd\u8272"}
+						];
+				fontList += '<div>';
+				for(var i in colors){
+					var ti =  parseInt(i)+1;
+					if (ti%9 === 0){
+						fontList += '</div><div>';
+					}else{
+						fontList += '<a href="#" onclick="return false;" title="'+colors[i].title
+								+'"style="display: inline-block;border: #999 1px solid;width: 17px;margin: 1px;height: 12px; background-color:'
+								+colors[i].key+';"></a>';
+					}
+				}
+				fontList += '</div>';
+				var timeOut;
+				colorDiv.append(fontList)
+					.css({position: 'absolute', left:ulLeft, top:ulTop});
+				jel.after(colorDiv)
+					.mouseleave(function (){
+						timeOut = setTimeout(function (){
+							colorDiv.remove();
+						}, 200);
+					});
+				colorDiv.mouseenter(function (){
+					clearTimeout(timeOut);
+				})
+				.mouseleave(function (){
+					setTimeout(function (){
+						colorDiv.remove();
+					}, 200);
+				});
+				$("a", colorDiv).click(function (){
+					var fs = $(this).css('background-color');
+					colorDiv.remove();
+					that.execCommand(o.key, false, fs).focus();
+				});
+			}
+		}
 	};
 	RealEditor.prototype = {
 		_hide : function (e){
@@ -399,7 +512,7 @@
 					,'font','fontSize','alignLeft', 'alignCenter', 'alignRight']
 				,mimi: ['bold','italic','underline','strikeout']
 				,full:['bold','italic','underline','strikeout','font', 'fontSize'
-					,'forecolor']
+					,'forecolor','backcolor','unorderedlist']
 			};
 			return this;
 		}
@@ -610,12 +723,16 @@
 				var _events = obj.event;
 				for (var e in _events){
 					(function (_e){toolButton.bind(_e, function (event){
-						//参数说明：'that' mean RealEditor object
-						//'this' mean event source(toolButton)
-						//'obj' mean one of this.tools
-						//'event' mean one of this.tools.event
-						RealEditor.toolsFun[obj.key][_events[_e]]
-									.call(that, this, obj, event);
+						if (typeof(_events[_e]) === 'function'){
+							_events[_e].call(that, this, obj, event);
+						}else{
+							//参数说明：'that' mean RealEditor object
+							//'this' mean event source(toolButton)
+							//'obj' mean one of this.tools
+							//'event' mean one of this.tools.event
+							RealEditor.toolsFun[obj.key][_events[_e]]
+										.call(that, this, obj, event);
+						}
 					})})(e);
 				}
 			}
