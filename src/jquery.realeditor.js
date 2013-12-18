@@ -672,9 +672,7 @@
 							+'"><span class="rltoolicon rltoolicon-'
 							+key+'">'
 							+key+'</span></a></span>';
-			this.appendToolsHtml(toolStr);
-			this.bindEvent(ot);
-			return this;
+			return this.appendToolsHtml(toolStr).bindEvent(ot);
 		}
 		//设置光标的位置
 		//if it's not work,please call this.focus
@@ -736,6 +734,7 @@
 					})})(e);
 				}
 			}
+			return this;
 		}
 		,bindKeyEvent : function (){
 			var _this = this;
