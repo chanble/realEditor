@@ -55,6 +55,8 @@
 				}
 			,"backcolor" : {"key":"backcolor","label":"\u80cc\u666f\u8272","event":{"mouseenter" :"mouseEnter"}//背景色
 				}
+			,"formatblock" : {"key":"formatblock","label":"\u6392\u7248","event":{"mouseenter" :"mouseEnter"}//排版
+				}
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
 		this._init();
@@ -499,6 +501,56 @@
 				});
 			}
 		}
+		,formatblock:{
+			mouseEnter: function (el,o,e){
+				var that = this;
+				var jel = $(el),fontUL = $('<ul></ul>')
+					, fontList = '', elOffset = jel.offset();
+				var ulLeft = elOffset.left
+					,ulTop = elOffset.top + jel.innerHeight();
+				var lists = [{"key":"<h1>", "title":"\u6807\u98981","label":"\u6807\u98981"}//标题1
+							,{"key":"<h2>", "title":"\u6807\u98982","label":"\u6807\u98982"}//标题2
+							,{"key":"<h3>", "title":"\u6807\u98983","label":"\u6807\u98983"}//标题3
+							,{"key":"<h4>", "title":"\u6807\u98984","label":"\u6807\u98984"}//标题4
+							,{"key":"<h5>", "title":"\u6807\u98985","label":"\u6807\u98985"}//标题5
+							,{"key":"<h6>", "title":"\u6807\u98986","label":"\u6807\u98986"}//标题6
+							,{"key":"<p>", "title":"\u6bb5\u843d","label":"\u6bb5\u843d"}//段落
+							,{"key":"<pre>", "title":"\u539f\u7248","label":"\u539f\u7248"}//原版
+							,{"key":"<address>", "title":"\u5730\u5740","label":"\u5730\u5740"}//地址
+						];
+				for(var i in lists){
+					fontList += '<li title="'+lists[i].title
+							+'" cmd="'+lists[i].key
+							+'"><a style="display:block;">'+lists[i].key.replace('>', ' style="margin:0px;">')+lists[i].label
+							+lists[i].key.replace('<','</')+'</a></li>'
+				}
+				var timeOut, ulHeight = 150;
+				fontUL.append(fontList)
+					.addClass('ul-list')
+					.css({"position": "absolute","left":ulLeft,"top":ulTop,"width":"150px"})
+					.height(ulHeight);
+				$()
+				jel.after(fontUL)
+					.mouseleave(function (){
+						timeOut = setTimeout(function (){
+							fontUL.remove();
+						}, 200);
+					});
+				fontUL.mouseenter(function (){
+					clearTimeout(timeOut);
+				})
+				.mouseleave(function (){
+					setTimeout(function (){
+						fontUL.remove();
+					}, 200);
+				});
+				$("li", fontUL).click(function (){
+					var fs = $(this).attr('cmd');
+					fontUL.remove();
+					that.execCommand(o.key, false, fs).focus();
+				});
+			}
+		}
 	};
 	RealEditor.prototype = {
 		_hide : function (e){
@@ -512,7 +564,7 @@
 					,'font','fontSize','alignLeft', 'alignCenter', 'alignRight']
 				,mimi: ['bold','italic','underline','strikeout']
 				,full:['bold','italic','underline','strikeout','font', 'fontSize'
-					,'forecolor','backcolor','unorderedlist']
+					,'forecolor','backcolor','formatblock']
 			};
 			return this;
 		}
