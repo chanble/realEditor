@@ -59,6 +59,10 @@
 				}
 			,"justify" : {"key":"justify","label":"\u5bf9\u9f50","event":{"mouseenter" :"mouseEnter"}//对齐
 				}
+			,"list" : {"key":"list","label":"\u5217\u8868","event":{"mouseenter" :"mouseEnter"}//列表
+				}
+			,"outdent" : {"key":"outdent","label":"\u7f29\u56de"}//缩回
+			,"indent" : {"key":"indent","label":"\u7f29\u8fdb"}//缩进
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
 		this._init();
@@ -597,6 +601,47 @@
 				});
 			}
 		}
+		,list:{
+			mouseEnter: function(el,o, e){
+				var that = this;
+				var jel = $(el),fontUL = $('<ul></ul>')
+					, fontList = '', elOffset = jel.offset();
+				var ulLeft = elOffset.left
+					,ulTop = elOffset.top + jel.innerHeight();
+				var lists = [{"key":"insertorderedlist", "title":"\u6570\u5b57\u5217\u8868","label":"\u6570\u5b57\u5217\u8868"}//数字列表
+							,{"key":"insertunorderedlist", "title":"\u7b26\u53f7\u5217\u8868","label":"\u7b26\u53f7\u5217\u8868"}];//符号列表
+				for(var i in lists){
+					fontList += '<li title="'+lists[i].title
+							+'"><a cmd="'
+							+lists[i].key+'">'
+							+lists[i].label+'</a></li>'
+				}
+				var timeOut, ulHeight = 50;
+				fontUL.append(fontList)
+					.addClass('ul-list')
+					.css({"position": "absolute","left":ulLeft,"top":ulTop,"width":"80px"})
+					.height(ulHeight);
+				jel.after(fontUL)
+					.mouseleave(function (){
+						timeOut = setTimeout(function (){
+							fontUL.remove();
+						}, 200);
+					});
+				fontUL.mouseenter(function (){
+					clearTimeout(timeOut);
+				})
+				.mouseleave(function (){
+					setTimeout(function (){
+						fontUL.remove();
+					}, 200);
+				});
+				$("li", fontUL).click(function (){
+					var fs = $('a', this).attr('cmd');
+					fontUL.remove();
+					that.execCommand(fs, false, null).focus();
+				});
+			}
+		}
 	};
 	RealEditor.prototype = {
 		_hide : function (e){
@@ -610,7 +655,7 @@
 					,'font','fontSize','alignLeft', 'alignCenter', 'alignRight']
 				,mimi: ['bold','italic','underline','strikeout']
 				,full:['bold','italic','underline','strikeout','font', 'fontSize'
-					,'forecolor','backcolor','formatblock','justify']
+					,'forecolor','backcolor','formatblock','justify','list','indent','outdent']
 			};
 			return this;
 		}
