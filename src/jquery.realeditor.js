@@ -57,6 +57,8 @@
 				}
 			,"formatblock" : {"key":"formatblock","label":"\u6392\u7248","event":{"mouseenter" :"mouseEnter"}//排版
 				}
+			,"justify" : {"key":"justify","label":"\u5bf9\u9f50","event":{"mouseenter" :"mouseEnter"}//对齐
+				}
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
 		this._init();
@@ -104,7 +106,8 @@
 	};
 	RealEditor.toolsFun = {
 		strikethrough:{click : function (el,o,e){
-				this.execCommand(o.key, false, null).focus();
+				this.execCommand('styleWithCSS',false,true)
+						.execCommand(o.key, false, null).focus();
 			}
 		}
 		,fontName: {
@@ -551,6 +554,49 @@
 				});
 			}
 		}
+		,justify:{
+			mouseEnter: function (el,o, e){
+				var that = this;
+				var jel = $(el),fontUL = $('<ul></ul>')
+					, fontList = '', elOffset = jel.offset();
+				var ulLeft = elOffset.left
+					,ulTop = elOffset.top + jel.innerHeight();
+				var lists = [{"key":"justifyleft", "title":"\u5de6\u5bf9\u9f50","label":"\u5de6\u5bf9\u9f50"}//左对齐
+							,{"key":"justifycenter", "title":"\u5c45\u4e2d","label":"\u5c45\u4e2d"}//居中
+							,{"key":"justifyright", "title":"\u53f3\u5bf9\u9f50","label":"\u53f3\u5bf9\u9f50"}//右对齐
+							,{"key":"justifyfull", "title":"\u5168\u5bf9\u9f50","label":"\u5168\u5bf9\u9f50"}];//全对齐
+				for(var i in lists){
+					fontList += '<li title="'+lists[i].title
+							+'"><a cmd="'
+							+lists[i].key+'">'
+							+lists[i].label+'</a></li>'
+				}
+				var timeOut, ulHeight = 100;
+				fontUL.append(fontList)
+					.addClass('ul-list')
+					.css({"position": "absolute","left":ulLeft,"top":ulTop,"width":"60px"})
+					.height(ulHeight);
+				jel.after(fontUL)
+					.mouseleave(function (){
+						timeOut = setTimeout(function (){
+							fontUL.remove();
+						}, 200);
+					});
+				fontUL.mouseenter(function (){
+					clearTimeout(timeOut);
+				})
+				.mouseleave(function (){
+					setTimeout(function (){
+						fontUL.remove();
+					}, 200);
+				});
+				$("li", fontUL).click(function (){
+					var fs = $('a', this).attr('cmd');
+					fontUL.remove();
+					that.execCommand(fs, false, null).focus();
+				});
+			}
+		}
 	};
 	RealEditor.prototype = {
 		_hide : function (e){
@@ -564,7 +610,7 @@
 					,'font','fontSize','alignLeft', 'alignCenter', 'alignRight']
 				,mimi: ['bold','italic','underline','strikeout']
 				,full:['bold','italic','underline','strikeout','font', 'fontSize'
-					,'forecolor','backcolor','formatblock']
+					,'forecolor','backcolor','formatblock','justify']
 			};
 			return this;
 		}
@@ -767,7 +813,7 @@
 			var that = this,toolButton = $("#rltoolabutton"+obj.key);
 			if (typeof (obj.event) == 'undefined' || obj.event.length == 0){
 				toolButton.bind('click', function (){
-					that.execCommand(obj.key,false,null).focus();
+					that.execCommand('styleWithCSS',false,true).execCommand(obj.key,false,null).focus();
 				});
 			}else{
 				var _events = obj.event;
