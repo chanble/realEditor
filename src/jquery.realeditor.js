@@ -13,7 +13,7 @@
 	};
 
 	var ctlKeyMap = {9:"Tab",13:"Enter",16:"Shift",17:"Ctrl",18:"Alt",27:"Esc"}
-	var charKeyMap = {65:"A",97:"a",66:"B",98:"b",73:"I",105:"i",85:"U",117:"u"};
+	var charKeyMap = {65:"A",97:"a",66:"B",98:"b",73:"I",105:"i",85:"U",117:"u",16:"R",82:"r"};
 
 	var RealEditor = function (i,el, o){
 		if (typeof(o) != "object"){
@@ -63,6 +63,8 @@
 				}
 			,"outdent" : {"key":"outdent","label":"\u7f29\u56de"}//缩回
 			,"indent" : {"key":"indent","label":"\u7f29\u8fdb"}//缩进
+			,"selectAll" : {"key":"selectall","shortcutKey":"ctrl+a","label":"\u5168\u9009"}//全选
+			,"removeformat" : {"key":"removeformat","shortcutKey":"ctrl+r", "label":"\u6e05\u9664\u683c\u5f0f"}//清除格式
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
 		this._init();
@@ -655,7 +657,8 @@
 					,'font','fontSize','alignLeft', 'alignCenter', 'alignRight']
 				,mimi: ['bold','italic','underline','strikeout']
 				,full:['bold','italic','underline','strikeout','font', 'fontSize'
-					,'forecolor','backcolor','formatblock','justify','list','indent','outdent']
+					,'forecolor','backcolor','formatblock','justify','list'
+					,'indent','outdent','selectAll','removeformat']
 			};
 			return this;
 		}

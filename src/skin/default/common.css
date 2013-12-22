@@ -73,6 +73,12 @@ Description: container style
 .rleditor_tool span.rltoolicon-indent{
 	background-position: -360px 0px;
 }
+.rleditor_tool span.rltoolicon-selectall{
+	background-position: -260px 0px;
+}
+.rleditor_tool span.rltoolicon-removeformat{
+	background-position: -280px 0px;
+}
 .rleditor_tool span ul.ul-list{
 	position: absolute;
 	border: 1px solid #C5C5C5;
