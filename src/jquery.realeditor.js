@@ -65,6 +65,9 @@
 			,"indent" : {"key":"indent","label":"\u7f29\u8fdb"}//缩进
 			,"selectAll" : {"key":"selectall","shortcutKey":"ctrl+a","label":"\u5168\u9009"}//全选
 			,"removeformat" : {"key":"removeformat","shortcutKey":"ctrl+r", "label":"\u6e05\u9664\u683c\u5f0f"}//清除格式
+			,"link" : {"key":"link", "label":"\u6e05\u9664\u683c\u5f0f","event":{
+					"mouseenter":"mouseEnter"
+			}}//插入链接
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
 		this._init();
@@ -644,6 +647,44 @@
 				});
 			}
 		}
+		,link:{
+			mouseEnter: function (el,o,e){
+				var that = this;
+				var jel = $(el),mdiv = $('<div style="background-color:#fff;border:#999 solid 1px;"></div>')
+					, mdivContent = '链接地址：<input type="text" id="reditor_murl" /><br>链接文字：<input type="text" id="reditor_mname"/><br><input type="button" value="插入" cmd="createlink"/>'
+					, elOffset = jel.offset();
+				var divLeft = elOffset.left
+					,mdivTop = elOffset.top + jel.innerHeight();
+
+				var timeOut;
+				mdiv.append(mdivContent)
+					.css({"position": "absolute","left":divLeft,"top":mdivTop})
+					;
+				jel.after(mdiv)
+					.mouseleave(function (){
+						timeOut = setTimeout(function (){
+							mdiv.remove();
+						}, 200);
+					});
+				mdiv.mouseenter(function (){
+					clearTimeout(timeOut);
+				})
+				.mouseleave(function (){
+					setTimeout(function (){
+						mdiv.remove();
+					}, 200);
+				});
+				$("input:button", mdiv).click(function (){
+					var fs = $(this).attr('cmd')
+						,herf = $('#reditor_murl',mdiv).val()
+						,name = $('#reditor_mname',mdiv).val()
+						;
+					that.appendHtml(name);
+					mdiv.remove();
+					that.execCommand(fs, false, herf).focus();
+				});
+			}
+		}
 	};
 	RealEditor.prototype = {
 		_hide : function (e){
@@ -658,7 +699,7 @@
 				,mimi: ['bold','italic','underline','strikeout']
 				,full:['bold','italic','underline','strikeout','font', 'fontSize'
 					,'forecolor','backcolor','formatblock','justify','list'
-					,'indent','outdent','selectAll','removeformat']
+					,'indent','outdent','selectAll','removeformat','link']
 			};
 			return this;
 		}
@@ -751,20 +792,8 @@
 			return newStr;
 		}
 		//
-		,appendHtml : function (str, start){
-			this.focus();
-			var sel = this.getSelection(), range = this.getRange();
-			if (range.insertNode){
-				var fragment  = range.createContextualFragment(str);
-				range.insertNode(fragment);
-			}else{//IE
-				if(sel.type.toLowerCase()==='control'){
-					sel.clear();
-					range = this.getRange();
-				}
-				range.pasteHTML(str);
-			}
-			return this;
+		,appendHtml : function (str){
+			return this.execCommand('inserthtml', false, str);
 		}
 		,getSelection : function (){
 			var _win = this.mrl_window
