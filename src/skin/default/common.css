@@ -5,7 +5,7 @@ Author     : chen
 Description: container style
 */
 .rleditor_container{
-
+	display: inline-block;
 }
 .rleditor_container table{
 	border: 1px solid #C5C5C5;
