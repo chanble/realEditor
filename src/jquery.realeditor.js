@@ -651,7 +651,7 @@
 			mouseEnter: function (el,o,e){
 				var that = this;
 				var jel = $(el),mdiv = $('<div style="background-color:#fff;border:#999 solid 1px;"></div>')
-					, mdivContent = '链接地址：<input type="text" id="reditor_murl" /><br>链接文字：<input type="text" id="reditor_mname"/><br><input type="button" value="插入" cmd="createlink"/>'
+					, mdivContent = '<input type="text" id="reditor_murl" value="填写链接地址" onfocus="this.value=\'\';"/><br><input type="text" id="reditor_mname" value="填写链接文字" size="10" onfocus="this.value=\'\';"/><input type="button" value="插入" cmd="createlink"/>'
 					, elOffset = jel.offset();
 				var divLeft = elOffset.left
 					,mdivTop = elOffset.top + jel.innerHeight();
@@ -677,9 +677,12 @@
 				$("input:button", mdiv).click(function (){
 					var fs = $(this).attr('cmd')
 						,herf = $('#reditor_murl',mdiv).val()
-						,name = $('#reditor_mname',mdiv).val()
-						;
-					that.appendHtml(name);
+						,name = $('#reditor_mname',mdiv).val();
+					var rg = that.getRange();
+					if (rg.collapsed){
+						that.appendHtml(name);
+						//rg.setStart(2).setEnd(10);
+					}
 					mdiv.remove();
 					that.execCommand(fs, false, herf).focus();
 				});
@@ -781,7 +784,7 @@
 		}
 		,appendText : function(str){
 			var newStr = this.convertHtml(str);
-			return this.docWrite(newStr);
+			return this.appendHtml(newStr);
 		}
 		// convert html mark to entity name
 		// 转换thml标签为实体名字
