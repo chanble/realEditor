@@ -68,6 +68,7 @@
 			,"link" : {"key":"link", "label":"\u6e05\u9664\u683c\u5f0f","event":{
 					"mouseenter":"mouseEnter"
 			}}//插入链接
+			,"unlink": {"key": "unlink", "label":"\u53d6\u6d88\u683c\u5f0f"}//取消链接
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
 		this._init();
@@ -701,7 +702,7 @@
 				,mimi: ['bold','italic','underline','strikeout']
 				,full:['bold','italic','underline','strikeout','font', 'fontSize'
 					,'forecolor','backcolor','formatblock','justify','list'
-					,'indent','outdent','selectAll','removeformat','link']
+					,'indent','outdent','selectAll','removeformat','link','unlink']
 			};
 			return this;
 		}
