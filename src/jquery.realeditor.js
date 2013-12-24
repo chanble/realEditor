@@ -680,8 +680,7 @@
 						,name = $('#reditor_mname',mdiv).val();
 					var rg = that.getRange();
 					if (rg.collapsed){
-						that.appendHtml(name);
-						//rg.setStart(2).setEnd(10);
+						that.appendTextNode(name);
 					}
 					mdiv.remove();
 					that.execCommand(fs, false, herf).focus();
@@ -723,12 +722,7 @@
 			return '<html><head>' + iframeHeaderHtml + '</head><body></body></html>';
 		}
 		,setEditable : function (b){
-			if(this.isIElt8){
-				this.mrl_body.contentEditable = b;
-			}else{
-				var design = b == true ? 'on' : 'off';
-				this.mrl_document.designMode = design;
-			}
+			this.mrl_body.contentEditable = b;
 			return this;
 		}
 		,getIframId :function (i){
@@ -739,11 +733,14 @@
 			return this;
 		}
 		,execCommand : function (command, aShowDefaultUI, aValue){
-			var aShowUI = !!aShowDefaultUI, state = false;
-			if (aValue !== undefined){
-				 this.mrl_document.execCommand(command, aShowUI, aValue);
+			var aShowUI = !!aShowDefaultUI;
+			var customCommands = [];
+			if (this.inArray(command, customCommands, true, true)){
+				//
 			}else{
-				this.mrl_document.execCommand(command, aShowUI, null);
+				aValue != null ?
+					this.mrl_document.execCommand(command, aShowUI, aValue)
+					: this.mrl_document.execCommand(command, aShowUI, null);
 			}
 			return this;
 		}
@@ -793,6 +790,22 @@
 			newStr = newStr.replace(/>/g, '&gt;');
 			newStr = newStr.replace(/\s/g, '&nbsp;');
 			return newStr;
+		}
+		,appendTextNode: function (str, select, start, end){
+			select = select == null || select != false;
+			start = isNaN(parseInt(start)) ? 0 : start;
+			end = isNaN(parseInt(end)) ? 0 : end;
+			var rg = this.getRange();
+			var sel = this.getSelection();
+			var tn = this.mrl_document.createTextNode(str);
+			rg.insertNode(tn);
+			if (select){
+				rg.setStart(tn, start);
+				end > 0 && rg.setEnd(tn, end);
+				sel.removeAllRanges();
+				sel.addRange(rg);
+			}
+			return this.focus();
 		}
 		//
 		,appendHtml : function (str){
@@ -931,7 +944,7 @@
 			return this;
 		}
 		,equalShortcut : function (keyEvent, shortcutStr){
-			var ctrl = !!keyEvent.ctrlKey, ctrlStr = 'ctrl'
+			var ctrl = !!keyEvent.ctrlKey, ctrlStr = 'CTRL'
 			,alt = !!keyEvent.altKey, altStr = 'alt'
 			,shift = !!keyEvent.shiftKey, shiftStr = 'shift'
 			,kc = this.getKeyCode(keyEvent)
@@ -950,9 +963,23 @@
 		, getKeyCode : function (keyEvent){
 			return keyEvent.keyCode | keyEvent.charCode;
 		}
-		,inArray : function (s, a){
+		/**
+		 * Checks if a value exists in an array
+		 * can be use object like-array
+		 * s: The searched value
+		 * a: The array
+		 * ignoreCase: letter case
+		 * key : compare object's key
+		 */
+		,inArray : function (s, a, ignoreCase, key){
+			ignoreCase = (ignoreCase == null) || (ignoreCase != false);
+			key = (key != null) && (key == true);
 			for (var i in a){
-				if (String(s).toLowerCase() == String(a[i]).toLowerCase()){
+				var equal = ignoreCase ?
+					(key ? String(s).toLowerCase() == String(i).toLowerCase()
+							: String(s).toLowerCase() == String(a[i]).toLowerCase())
+					:(key ? s == i : s == a[i]);
+				if (equal){
 					return true;
 				}
 			}
