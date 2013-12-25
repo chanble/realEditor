@@ -27,7 +27,7 @@
 		this.isSafari = /webkit/.test(userAgent);
 		this.isIE = /msie/.test(userAgent) && !this.isIE;
 		this.browserVersion = (userAgent.match(/.+(?:rv|it|ra|ie)[\/: ]([\d.]+)/)||[0,"0"])[1];
-		this.isIElt8 = this.isIE && (this.browserVersion-0 <= 8);
+		this.isIEle8 = this.isIE && (this.browserVersion-0 <= 8);
 
 		//添加工具栏的工具
 		//If you want add tool to tool bar. You must be do three steps:
@@ -875,7 +875,7 @@
 			if (!node){
 				node = this.mrl_body;
 			}
-			if (this.isIElt8) {
+			if (this.isIEle8) {
 			  range.moveStart('character', pos);
 			  range.select();
 			}else {
