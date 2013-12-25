@@ -680,7 +680,8 @@
 						,herf = $('#reditor_murl',mdiv).val()
 						,name = $('#reditor_mname',mdiv).val();
 					var rg = that.getRange();
-					if (rg.collapsed){
+					var isRg = that.isIEle8 ? rg.htmlText == '' : rg.collapsed;
+					if (isRg){
 						that.appendTextNode(name);
 					}
 					mdiv.remove();
@@ -796,15 +797,27 @@
 			select = select == null || select != false;
 			start = isNaN(parseInt(start)) ? 0 : start;
 			end = isNaN(parseInt(end)) ? 0 : end;
-			var rg = this.getRange();
 			var sel = this.getSelection();
-			var tn = this.mrl_document.createTextNode(str);
-			rg.insertNode(tn);
-			if (select){
-				rg.setStart(tn, start);
-				end > 0 && rg.setEnd(tn, end);
-				sel.removeAllRanges();
-				sel.addRange(rg);
+			if (this.isIEle8){
+				var rg = this.getRange(true);
+				rg.collapse (false);
+				rg.pasteHTML(str);
+				start = start - str.length;
+				if (select){
+					rg.moveStart("character",start);
+					end > 0 && rg.moveEnd("character", end-str.length);
+					rg.select();
+				}
+			}else{
+				var rg = this.getRange();
+				var tn = this.mrl_document.createTextNode(str);
+				rg.insertNode(tn);
+				if (select){
+					rg.setStart(tn, start);
+					end > 0 && rg.setEnd(tn, end);
+					sel.removeAllRanges();
+					sel.addRange(rg);
+				}
 			}
 			return this.focus();
 		}
@@ -825,7 +838,7 @@
 				if(!bNew){
 					var sel = this.getSelection();
 					rng = sel.createRange ? sel.createRange()
-							: (sel.rangeCount > 0?sel.getRangeAt(0) : null);
+							: (sel.rangeCount > 0 ? sel.getRangeAt(0) : null);
 				}
 				if (!rng){
 					rng = this.mrl_body.createTextRange
@@ -902,7 +915,7 @@
 		}
 		,bindEvent : function (obj){
 			if (typeof(obj) == 'undefined'){
-				return ;
+				return this;
 			}
 			var that = this,toolButton = $("#rltoolabutton"+obj.key);
 			if (typeof (obj.event) == 'undefined' || obj.event.length == 0){
