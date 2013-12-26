@@ -724,7 +724,7 @@
 			return '<html><head>' + iframeHeaderHtml + '</head><body></body></html>';
 		}
 		,setEditable : function (b){
-			this.mrl_body.contentEditable = b;
+			this.mrl_body.contentEditable = !!b;
 			return this;
 		}
 		,getIframId :function (i){
