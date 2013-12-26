@@ -69,6 +69,33 @@
 					"mouseenter":"mouseEnter"
 			}}//插入链接
 			,"unlink": {"key": "unlink", "label":"\u53d6\u6d88\u683c\u5f0f"}//取消链接
+			,"about": {"key": "about", "label": "\u5173\u4e8e"
+					, "event":{"click": function(el,o,e){
+							var divContent = '欢迎使用realEditor<br>您可以点击<a href="https://github.com/chanble/realEditor" target="_blank">这里</a>了解该项目<br>联系作者：chanble_cn@163.com'
+								,adiv = $('<div class="rltoolbuttonitem-div">'+divContent+'</div>');
+							var jel = $(el)
+								,elOffset = jel.offset();
+							var ulLeft = elOffset.left
+								,ulTop = elOffset.top + jel.innerHeight();
+							var timeOut;
+							jel.after(
+									adiv.css({"position": "absolute", "left":ulLeft, "top":ulTop})
+								).mouseleave(function (){
+									timeOut = setTimeout(function (){
+										adiv.remove();
+									}, 200);
+								});
+							adiv.mouseenter(function (){
+								clearTimeout(timeOut);
+							})
+							.mouseleave(function (){
+								setTimeout(function (){
+									adiv.remove();
+								}, 200);
+							});
+						}
+				}
+			}
 		};
 		this.options = $.extend(false, RealEditor.DEFAULT_OPTS, o);
 		this._init();
@@ -156,8 +183,8 @@
 					.addClass('ul-list')
 					.css({"position": "absolute", "left":ulLeft, "top":ulTop, "width":"150px"})
 					.height(ulHeight);
-				jel.after(fontUL);
-				jel.mouseleave(function (){
+				jel.after(fontUL)
+				.mouseleave(function (){
 					timeOut = setTimeout(function (){
 						fontUL.remove();
 					}, 200);
@@ -227,7 +254,7 @@
 			mouseEnter: function (el,o,e){
 				var that = this;
 				var jel = $(el),colorDiv
-						= $('<div style="border: #999 1px solid;background-color: #fff; padding: 5px;"></div>')
+						= $('<div class="rltoolbuttonitem-div"></div>')
 					, fontList = '', elOffset = jel.offset();
 				var ulLeft = elOffset.left
 					,ulTop = elOffset.top + jel.innerHeight();
@@ -384,7 +411,8 @@
 					}
 				}
 				fontList += '</div>';
-				var timeOut;
+				var timeOut = null;
+				jel.addClass('rltoolbuttonhover');
 				colorDiv.append(fontList)
 					.css({position: 'absolute', left:ulLeft, top:ulTop});
 				jel.after(colorDiv)
@@ -412,7 +440,7 @@
 			mouseEnter:function (el,o,e){
 				var that = this;
 				var jel = $(el),colorDiv
-						= $('<div style="border: #999 1px solid;background-color: #fff; padding: 5px;"></div>')
+						= $('<div class="rltoolbuttonitem-div"></div>')
 					, fontList = '', elOffset = jel.offset();
 				var ulLeft = elOffset.left
 					,ulTop = elOffset.top + jel.innerHeight();
@@ -651,8 +679,8 @@
 		,link:{
 			mouseEnter: function (el,o,e){
 				var that = this;
-				var jel = $(el),mdiv = $('<div style="background-color:#fff;border:#999 solid 1px;"></div>')
-					, mdivContent = '<input type="text" id="reditor_murl" value="填写链接地址" onfocus="this.value=\'\';"/><br><input type="text" id="reditor_mname" value="填写链接文字" size="10" onfocus="this.value=\'\';"/><input type="button" value="插入" cmd="createlink"/>'
+				var jel = $(el),mdiv = $('<div class="rltoolbuttonitem-div"></div>')
+					, mdivContent = '<input type="text" id="reditor_murl" value="链接地址" onfocus="this.value=\'\';"/><br><input type="text" id="reditor_mname" value="链接文字" size="10" onfocus="this.value=\'\';"/><input type="button" value="插入" cmd="createlink"/>'
 					, elOffset = jel.offset();
 				var divLeft = elOffset.left
 					,mdivTop = elOffset.top + jel.innerHeight();
@@ -703,7 +731,7 @@
 				,mimi: ['bold','italic','underline','strikeout']
 				,full:['bold','italic','underline','strikeout','font', 'fontSize'
 					,'forecolor','backcolor','formatblock','justify','list'
-					,'indent','outdent','selectAll','removeformat','link','unlink']
+					,'indent','outdent','selectAll','removeformat','link','unlink','about']
 			};
 			return this;
 		}
