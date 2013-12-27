@@ -85,6 +85,9 @@ Description: container style
 .rleditor_tool span.rltoolicon-unlink{
 	background-position: -400px 0px;
 }
+.rleditor_tool span.rltoolicon-about{
+	background-position: -640px 0px;
+}
 .rleditor_tool span ul.ul-list{
 	position: absolute;
 	border: 1px solid #C5C5C5;
@@ -119,5 +122,16 @@ Description: container style
 	text-decoration: none;
 	display: inline-block;
 	margin: 1px;
+	border: 1px solid #e5e5e5;
+}
+
+.rleditor_tool .rltoolbuttonitem-div{
+	border: #999 1px solid;
+	background-color: #fff;
+	padding:5px;
+}
+
+.rleditor_tool input[type="text"]{
+	margin: 2px;
 	border: 1px solid #e5e5e5;
 }
