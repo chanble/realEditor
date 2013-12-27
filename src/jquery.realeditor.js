@@ -680,15 +680,14 @@
 			mouseEnter: function (el,o,e){
 				var that = this;
 				var jel = $(el),mdiv = $('<div class="rltoolbuttonitem-div"></div>')
-					, mdivContent = '<input type="text" id="reditor_murl" value="链接地址" onfocus="this.value=\'\';"/><br><input type="text" id="reditor_mname" value="链接文字" size="10" onfocus="this.value=\'\';"/><input type="button" value="插入" cmd="createlink"/>'
+					, mdivContent = '<input type="text" id="reditor_murl" value="链接地址" onfocus="this.value=\'\';"onblur="this.value=\'链接地址\'"/><br><input type="text" id="reditor_mname" value="链接文字" size="10" onfocus="this.value=\'\';" onblur="this.value=\'链接文字\'"/><input type="button" value="插入" cmd="createlink"/>'
 					, elOffset = jel.offset();
 				var divLeft = elOffset.left
 					,mdivTop = elOffset.top + jel.innerHeight();
 
 				var timeOut;
 				mdiv.append(mdivContent)
-					.css({"position": "absolute","left":divLeft,"top":mdivTop})
-					;
+					.css({"position": "absolute","left":divLeft,"top":mdivTop});
 				jel.after(mdiv)
 					.mouseleave(function (){
 						timeOut = setTimeout(function (){

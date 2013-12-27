@@ -131,7 +131,7 @@ Description: container style
 	padding:5px;
 }
 
-.rleditor_tool input{
+.rleditor_tool input[type="text"]{
 	margin: 2px;
 	border: 1px solid #e5e5e5;
 }
