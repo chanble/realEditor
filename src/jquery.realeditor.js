@@ -65,10 +65,15 @@
 			,"indent" : {"key":"indent","label":"\u7f29\u8fdb"}//缩进
 			,"selectAll" : {"key":"selectall","shortcutKey":"ctrl+a","label":"\u5168\u9009"}//全选
 			,"removeformat" : {"key":"removeformat","shortcutKey":"ctrl+r", "label":"\u6e05\u9664\u683c\u5f0f"}//清除格式
-			,"link" : {"key":"link", "label":"\u6e05\u9664\u683c\u5f0f","event":{
+			,"link" : {"key":"createlink", "label":"\u6e05\u9664\u683c\u5f0f","event":{
 					"mouseenter":"mouseEnter"
 			}}//插入链接
 			,"unlink": {"key": "unlink", "label":"\u53d6\u6d88\u683c\u5f0f"}//取消链接
+			,"image": {"key": "insertimage", "label": "\u63d2\u5165\u56fe\u7247"
+				,"event":{
+					"mouseenter":"mouseEnter"
+				}
+			}//插入图片
 			,"about": {"key": "about", "label": "\u5173\u4e8e"
 					, "event":{"click": function(el,o,e){
 							var divContent = '欢迎使用realEditor<br>您可以点击<a href="https://github.com/chanble/realEditor" target="_blank">这里</a>了解该项目<br>联系作者：chanble_cn@163.com'
@@ -676,11 +681,11 @@
 				});
 			}
 		}
-		,link:{
+		,createlink:{
 			mouseEnter: function (el,o,e){
 				var that = this;
 				var jel = $(el),mdiv = $('<div class="rltoolbuttonitem-div"></div>')
-					, mdivContent = '<input type="text" id="reditor_murl" value="链接地址" onfocus="this.value == \'链接地址\'?this.value=\'\':\'\';"onblur="this.value==\'\'?this.value=\'链接地址\':\'\';"/><br><input type="text" id="reditor_mname" value="链接文字" size="10" onfocus="this.value==\'链接文字\'?this.value=\'\':\'\';" onblur="this.value==\'\'?this.value=\'链接文字\':\'\';"/><input type="button" value="插入" cmd="createlink"/>'
+					, mdivContent = '<input type="text" id="reditor_murl" value="链接地址" onfocus="this.value == \'链接地址\'?this.value=\'\':\'\';"onblur="this.value==\'\'?this.value=\'链接地址\':\'\';"/><br><input type="text" id="reditor_mname" value="链接文字" size="10" onfocus="this.value==\'链接文字\'?this.value=\'\':\'\';" onblur="this.value==\'\'?this.value=\'链接文字\':\'\';"/><input type="button" value="插入"/>'
 					, elOffset = jel.offset();
 				var divLeft = elOffset.left
 					,mdivTop = elOffset.top + jel.innerHeight();
@@ -703,8 +708,7 @@
 					}, 200);
 				});
 				$("input:button", mdiv).click(function (){
-					var fs = $(this).attr('cmd')
-						,herf = $('#reditor_murl',mdiv).val()
+					var herf = $('#reditor_murl',mdiv).val()
 						,name = $('#reditor_mname',mdiv).val();
 					var rg = that.getRange();
 					var isRg = that.isIEle8 ? rg.htmlText == '' : rg.collapsed;
@@ -712,7 +716,51 @@
 						that.appendTextNode(name);
 					}
 					mdiv.remove();
-					that.execCommand(fs, false, herf).focus();
+					that.execCommand(o.key, false, herf).focus();
+				});
+			}
+		}
+		,insertimage: {mouseEnter: function (el,o,e){
+				var that = this;
+				var jel = $(el),mdiv = $('<div class="rltoolbuttonitem-div"></div>')
+					, mdivContent = '<input type="text" id="reditor_murl" value="图片地址" onfocus="this.value == \'图片地址\'?this.value=\'\':\'\';"onblur="this.value==\'\'?this.value=\'图片地址\':\'\';"/><input type="button" id="reditor_insert" value="插入"/>&nbsp;<input id="reditor_upload" type="button" value="上传"/><input type="file" id="reditor_uploadfile" tabindex="-1" style="display:none;" accept="image/*" name="imageFile"/>'
+					, elOffset = jel.offset();
+				var divLeft = elOffset.left
+					,mdivTop = elOffset.top + jel.innerHeight();
+
+				var timeOut;
+				mdiv.append(mdivContent)
+					.css({"position": "absolute","left":divLeft,"top":mdivTop});
+				jel.after(mdiv)
+					.mouseleave(function (){
+						timeOut = setTimeout(function (){
+							mdiv.remove();
+						}, 200);
+					});
+				mdiv.mouseenter(function (){
+					clearTimeout(timeOut);
+				})
+				.mouseleave(function (){
+					setTimeout(function (){
+						mdiv.remove();
+					}, 200);
+				});
+				$("#reditor_insert",mdiv).click(function (){
+					var url = $("input:text", mdiv).val();
+					that.execCommand(o.key, false,url);
+				});
+				$("#reditor_upload",mdiv).click(function (){
+					$("#reditor_uploadfile").trigger('click').change(function(){
+						that.uploadfile(this,"upload.php",function (d){
+							if (!d){
+								alert('上传失败，请重新上传！');
+							}else if (d.state == 'ok'){
+								this.execCommand(o.key, false,d.msg);
+							}else{
+								alert(d.msg);
+							}
+						});
+					});
 				});
 			}
 		}
@@ -730,7 +778,7 @@
 				,mimi: ['bold','italic','underline','strikeout']
 				,full:['bold','italic','underline','strikeout','font', 'fontSize'
 					,'forecolor','backcolor','formatblock','justify','list'
-					,'indent','outdent','selectAll','removeformat','link','unlink','about']
+					,'indent','outdent','selectAll','removeformat','link','unlink','image','about']
 			};
 			return this;
 		}
@@ -1025,6 +1073,29 @@
 				}
 			}
 			return false;
+		}
+		,uploadfile: function (inputFileEl,toUrl,completeCallback){
+			var that = this;
+			var uid = new Date().getTime(),idIO='jUploadFrame'+uid;
+			var mfile = $(inputFileEl);
+			var jIO=$('<iframe name="'+idIO+'" style="display: none;"/>').appendTo('body');
+			var mform = $('<form action="'+toUrl+'" target="'+idIO+'" method="post" enctype="multipart/form-data"></form>').appendTo('body');
+			mform.append(mfile).submit();
+			var io = jIO[0];
+			var mresponse = '';
+			var minterval = setInterval(function (){
+				mresponse = io.contentWindow.document.body.innerHTML;
+				if (mresponse != ''){
+					clearInterval(minterval);
+					var mResponseJson = $.parseJSON(mresponse);
+					setTimeout(function (){
+						jIO.remove();
+						mform.remove();
+					}, 50);
+					completeCallback.call(that, mResponseJson);
+				}
+			}, 500);
+
 		}
 	};
 })(jQuery);

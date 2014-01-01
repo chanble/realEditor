@@ -79,11 +79,14 @@ Description: container style
 .rleditor_tool span.rltoolicon-removeformat{
 	background-position: -280px 0px;
 }
-.rleditor_tool span.rltoolicon-link{
+.rleditor_tool span.rltoolicon-createlink{
 	background-position: -380px 0px;
 }
 .rleditor_tool span.rltoolicon-unlink{
 	background-position: -400px 0px;
+}
+.rleditor_tool span.rltoolicon-insertimage{
+	background-position: -440px 0px;
 }
 .rleditor_tool span.rltoolicon-about{
 	background-position: -640px 0px;
@@ -134,4 +137,7 @@ Description: container style
 .rleditor_tool input[type="text"]{
 	margin: 2px;
 	border: 1px solid #e5e5e5;
+}
+.rleditor_tool input[type="button"]:hover{
+	cursor: pointer;
 }
