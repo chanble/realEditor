@@ -723,7 +723,7 @@
 		,insertimage: {mouseEnter: function (el,o,e){
 				var that = this;
 				var jel = $(el),mdiv = $('<div class="rltoolbuttonitem-div"></div>')
-					, mdivContent = '<input type="text" id="reditor_murl" value="图片地址" onfocus="this.value == \'图片地址\'?this.value=\'\':\'\';"onblur="this.value==\'\'?this.value=\'图片地址\':\'\';"/><input type="button" id="reditor_insert" value="插入"/>&nbsp;<input id="reditor_upload" type="button" value="上传"/><input type="file" id="reditor_uploadfile" tabindex="-1" style="display:none;" accept="image/*"/>'
+					, mdivContent = '<input type="text" id="reditor_murl" value="图片地址" onfocus="this.value == \'图片地址\'?this.value=\'\':\'\';"onblur="this.value==\'\'?this.value=\'图片地址\':\'\';"/><input type="button" id="reditor_insert" value="插入"/>&nbsp;<input id="reditor_upload" type="button" value="上传"/><input type="file" id="reditor_uploadfile" tabindex="-1" style="display:none;" accept="image/*" name="imageFile"/>'
 					, elOffset = jel.offset();
 				var divLeft = elOffset.left
 					,mdivTop = elOffset.top + jel.innerHeight();
@@ -751,8 +751,14 @@
 				});
 				$("#reditor_upload",mdiv).click(function (){
 					$("#reditor_uploadfile").trigger('click').change(function(){
-						that.uploadfile(this,"upload.php",function (){
-							alert('上传完成');
+						that.uploadfile(this,"upload.php",function (d){
+							if (!d){
+								alert('上传失败，请重新上传！');
+							}else if (d.state == 'ok'){
+								this.execCommand(o.key, false,d.msg);
+							}else{
+								alert(d.msg);
+							}
 						});
 					});
 				});
@@ -1069,12 +1075,27 @@
 			return false;
 		}
 		,uploadfile: function (inputFileEl,toUrl,completeCallback){
+			var that = this;
 			var uid = new Date().getTime(),idIO='jUploadFrame'+uid;
 			var mfile = $(inputFileEl);
 			var jIO=$('<iframe name="'+idIO+'" style="display: none;"/>').appendTo('body');
 			var mform = $('<form action="'+toUrl+'" target="'+idIO+'" method="post" enctype="multipart/form-data"></form>').appendTo('body');
 			mform.append(mfile).submit();
-			//setTimeout(completeCallback.call(), 10);
+			var io = jIO[0];
+			var mresponse = '';
+			var minterval = setInterval(function (){
+				mresponse = io.contentWindow.document.body.innerHTML;
+				if (mresponse != ''){
+					clearInterval(minterval);
+					var mResponseJson = $.parseJSON(mresponse);
+					setTimeout(function (){
+						jIO.remove();
+						mform.remove();
+					}, 50);
+					completeCallback.call(that, mResponseJson);
+				}
+			}, 500);
+
 		}
 	};
 })(jQuery);
