@@ -1076,6 +1076,9 @@
 		}
 		,uploadfile: function (inputFileEl,toUrl,completeCallback){
 			var that = this;
+			var red = this.reDialog({title:"上传中……", content:"", ok:function (){
+						},cancel:true,mask:0.7});
+			red.show();
 			var uid = new Date().getTime(),idIO='jUploadFrame'+uid;
 			var mfile = $(inputFileEl);
 			var jIO=$('<iframe name="'+idIO+'" style="display: none;"/>').appendTo('body');
@@ -1092,10 +1095,43 @@
 						jIO.remove();
 						mform.remove();
 					}, 50);
+					setTimeout(function (){red.release();}, 50);
 					completeCallback.call(that, mResponseJson);
 				}
 			}, 500);
-
+		}
+		,reDialog: function(dOpt){
+			var that = this;
+			//
+			var defaultOpt = {title: "", content: "", ok: true, cancel: true, mask:0.8};
+			var opt = $.extend(false, defaultOpt, dOpt);
+			var realDialog = function (){
+				var _rDialog = $('<div class="rleditor_redialog"><h3></h3><div></div><p></p></div>');
+				var _head = $("h3",_rDialog).html(opt.title);
+				var _content = $("div",_rDialog).html(opt.content);
+				if (!!opt.mask){
+					var _maskDiv = $('<div class="rleditor_mask"></div>');
+					_maskDiv.appendTo('body');
+					this.maskDiv = _maskDiv;
+				}
+				_rDialog.appendTo('body');
+				this.rDialog = _rDialog;
+				this.show = function (){
+					if (!!this.maskDiv){
+						this.maskDiv.css({"display":"block","opacity":this.maskDiv});
+					}
+					this.rDialog.css("display", "block");
+					return this;
+				};
+				this.release = function (){
+					if (!!this.maskDiv){
+						this.maskDiv.remove();
+					}
+					this.rDialog.remove();
+					return this;
+				};
+			}
+			return new realDialog();
 		}
 	};
 })(jQuery);
