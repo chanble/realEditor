@@ -1074,11 +1074,12 @@
 			}
 			return false;
 		}
-		,uploadfile: function (inputFileEl,toUrl,completeCallback){
+		,uploadfile: function (inputFileEl,toUrl,completeCallback,timeout){
 			var that = this;
 			var red = this.reDialog({title:"上传中……", content:"", ok:function (){
 						},cancel:true,mask:0.7});
 			red.show();
+			timeout = !timeout ? 60000 : timeout;
 			var uid = new Date().getTime(),idIO='jUploadFrame'+uid;
 			var mfile = $(inputFileEl);
 			var jIO=$('<iframe name="'+idIO+'" style="display: none;"/>').appendTo('body');
@@ -1088,7 +1089,12 @@
 			var mresponse = '';
 			var minterval = setInterval(function (){
 				mresponse = io.contentWindow.document.body.innerHTML;
-				if (mresponse != ''){
+				var currTime = new Date().getTime();
+				var noTimeout = (currTime-uid-timeout) < 0;
+				if (!noTimeout){
+					clearInterval(minterval);
+					setTimeout(function (){red.release();}, 50);//释放弹出框
+				}else if (mresponse != ''){
 					clearInterval(minterval);
 					var mResponseJson = $.parseJSON(mresponse);
 					setTimeout(function (){
