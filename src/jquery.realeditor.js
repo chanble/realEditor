@@ -1076,10 +1076,13 @@
 		}
 		,uploadfile: function (inputFileEl,toUrl,completeCallback,timeout){
 			var that = this;
-			var red = this.reDialog({title:"上传中……", content:"", ok:function (){
-						},cancel:true,mask:0.7});
+			var red = this.reDialog({title:"上传中……", content:""
+					,cancel:function(){
+						alert(12);
+					}
+				, mask:0.7});
 			red.show();
-			timeout = !timeout ? 60000 : timeout;
+			/*timeout = !timeout ? 60000 : timeout;
 			var uid = new Date().getTime(),idIO='jUploadFrame'+uid;
 			var mfile = $(inputFileEl);
 			var jIO=$('<iframe name="'+idIO+'" style="display: none;"/>').appendTo('body');
@@ -1090,7 +1093,7 @@
 			var minterval = setInterval(function (){
 				mresponse = io.contentWindow.document.body.innerHTML;
 				var currTime = new Date().getTime();
-				var noTimeout = (currTime-uid-timeout) < 0;
+				var noTimeout = (currTime-uid-timeout) < 0;//是否超时
 				if (!noTimeout){
 					clearInterval(minterval);
 					setTimeout(function (){red.release();}, 50);//释放弹出框
@@ -1104,21 +1107,36 @@
 					setTimeout(function (){red.release();}, 50);
 					completeCallback.call(that, mResponseJson);
 				}
-			}, 500);
+			}, 500);*/
 		}
 		,reDialog: function(dOpt){
 			var that = this;
 			//
-			var defaultOpt = {title: "", content: "", ok: true, cancel: true, mask:0.8};
+			var defaultOpt = {title: "", content: "", mask:0.8};
 			var opt = $.extend(false, defaultOpt, dOpt);
 			var realDialog = function (){
-				var _rDialog = $('<div class="rleditor_redialog"><h3></h3><div></div><p></p></div>');
+				var _rDialog = $('<div class="rleditor_redialog"><table><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr></table></div>');
 				var _head = $("h3",_rDialog).html(opt.title);
 				var _content = $("div",_rDialog).html(opt.content);
-				if (!!opt.mask){
+				if (!!opt.mask){//添加遮罩层
 					var _maskDiv = $('<div class="rleditor_mask"></div>');
 					_maskDiv.appendTo('body');
 					this.maskDiv = _maskDiv;
+				}
+				if (!!opt.cancel){
+					$("td:last", _rDialog).append('<input type="button" id="rleditor_cancel" value="取消"/>');
+					$("#rleditor_cancel").click(function (){
+						typeof(opt.cancel) === 'function' ?
+							(opt.cancel).call() : this.release();
+					});
+				}
+				if (!!opt.ok && typeof(opt.ok) === 'function'){
+					$("td:last", _rDialog).append('<input type="button" id="rleditor_ok" value="确定"/>');
+					var okBtn = $("#rleditor_ok");
+					okBtn.click(function (){
+						typeof(opt.ok) === 'function' ?
+							(opt.ok).call() : this.release();
+					});
 				}
 				_rDialog.appendTo('body');
 				this.rDialog = _rDialog;

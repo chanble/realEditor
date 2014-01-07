@@ -142,8 +142,8 @@ Description: container style
 	cursor: pointer;
 }
 .rleditor_mask{
-	display: none; 
-	position: absolute; 
+	display: none;
+	position: absolute;
 	top: 0%;  left: 0%;
 	width: 100%;
 	height: 100%;
@@ -155,18 +155,17 @@ Description: container style
 
 .rleditor_redialog{
 	display: none;
-	position: absolute; 
-	top: 50%;
-	left: 50%;
+	position: absolute;
+	top: 35%;
+	left: 40%;
 	background-color: #FFF;
 	z-index:1002;
 	border: 1px solid #000;
+	width: 20%;
+	height: 20%;
 }
 
-.rleditor_redialog h3{
-	background-color: #4A3CB1;
-}
-
-.rleditor_redialog p{
-	background-color: red;
+.rleditor_redialog table{
+	width: 100%;
+	height: 100%;
 }
