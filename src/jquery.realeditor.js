@@ -751,15 +751,30 @@
 				});
 				$("#reditor_upload",mdiv).click(function (){
 					$("#reditor_uploadfile").trigger('click').change(function(){
-						that.uploadfile(this,"upload.php",function (d){
-							if (!d){
-								alert('上传失败，请重新上传！');
-							}else if (d.state == 'ok'){
-								this.execCommand(o.key, false,d.msg);
-							}else{
-								alert(d.msg);
-							}
-						});
+						var red = that.reDialog(
+								{title:"上传中……", content:""
+								,cancel:function(){
+									reu.cancelUpload();
+								}
+								, mask:0.7});
+						var reu = that.reUpload({uploadFile: this, url: 'upload.php'
+								, complete: function(d){
+									if (!d){
+										alert('上传失败，请重新上传！');
+									}else if (d.state == 'ok'){
+										this.execCommand(o.key, false,d.msg);
+									}else if (d.state == 'cancel'){
+
+									}else{
+										alert(d.msg);
+									}
+									red.release();
+								}, timeout: 60000
+								,start: function (){
+									red.show();
+								}
+							});
+						reu.startUpload();
 					});
 				});
 			}
@@ -1074,28 +1089,100 @@
 			}
 			return false;
 		}
-		,uploadfile: function (inputFileEl,toUrl,completeCallback){
-			var that = this;
-			var uid = new Date().getTime(),idIO='jUploadFrame'+uid;
-			var mfile = $(inputFileEl);
-			var jIO=$('<iframe name="'+idIO+'" style="display: none;"/>').appendTo('body');
-			var mform = $('<form action="'+toUrl+'" target="'+idIO+'" method="post" enctype="multipart/form-data"></form>').appendTo('body');
-			mform.append(mfile).submit();
-			var io = jIO[0];
-			var mresponse = '';
-			var minterval = setInterval(function (){
-				mresponse = io.contentWindow.document.body.innerHTML;
-				if (mresponse != ''){
-					clearInterval(minterval);
-					var mResponseJson = $.parseJSON(mresponse);
-					setTimeout(function (){
-						jIO.remove();
-						mform.remove();
-					}, 50);
-					completeCallback.call(that, mResponseJson);
+		,reDialog: function(dOpt){
+			var defaultOpt = {title: "", content: "", mask:0.8};
+			var opt = $.extend(false, defaultOpt, dOpt);
+			var realDialog = function (){
+				var _rDialog = $('<div class="rleditor_redialog"><table><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr></table></div>').appendTo('body');
+				var _head = $("h3",_rDialog).html(opt.title);
+				var _content = $("div",_rDialog).html(opt.content);
+				if (!!opt.mask){//添加遮罩层
+					var _maskDiv = $('<div class="rleditor_mask"></div>');
+					_maskDiv.appendTo('body');
+					this.maskDiv = _maskDiv;
 				}
-			}, 500);
-
+				if (!!opt.cancel){
+					$("td:last", _rDialog).append('<input type="button" id="rleditor_cancel" value="取消"/>');
+					$("#rleditor_cancel").click(function (){
+						typeof(opt.cancel) === 'function' ?
+							(opt.cancel).call() : this.release();
+					});
+				}
+				if (!!opt.ok && typeof(opt.ok) === 'function'){
+					$("td:last", _rDialog).append('<input type="button" id="rleditor_ok" value="确定"/>');
+					var okBtn = $("#rleditor_ok");
+					okBtn.click(function (){
+						typeof(opt.ok) === 'function' ?
+							(opt.ok).call() : this.release();
+					});
+				}
+				this.rDialog = _rDialog;
+				this.show = function (){
+					if (!!this.maskDiv){
+						this.maskDiv.css({"display":"block","opacity":this.maskDiv});
+					}
+					this.rDialog.css("display", "block");
+					return this;
+				};
+				this.release = function (){
+					if (!!this.maskDiv){
+						this.maskDiv.remove();
+					}
+					this.rDialog.remove();
+					return this;
+				};
+			}
+			return new realDialog();
+		}
+		,reUpload: function (dOpt){
+			var that = this;
+			var defaultOpt = {uploadFile:$("#reditor_uploadfile") ,url: "upload.php"
+								,start:function(){ console.info('开始上传');}
+								,complete:function (d){console.info('上传结束');}
+								,timeout:60000};
+			var opt = $.extend(false, defaultOpt, dOpt);
+			var realUpload = function (){
+				var timeout = opt.timeout
+					,inputFileEl = $(opt.uploadFile)
+					,toUrl = opt.url;
+				var uid = new Date().getTime(),idIO='jUploadFrame'+uid;
+				var mfile = $(inputFileEl);
+				var jIO=$('<iframe name="'+idIO+'" style="display: none;"/>').appendTo('body');
+				var mform = $('<form action="'+toUrl+'" target="'+idIO+'" method="post" enctype="multipart/form-data"></form>').appendTo('body');
+				var minterval, io = jIO[0], mresponse = '';
+				this.startUpload = function (){
+					mform.append(mfile).submit();
+					minterval = setInterval(function (){
+						mresponse = io.contentWindow.document.body.innerHTML;
+						var currTime = new Date().getTime();
+						var noTimeout = (currTime-uid-timeout) < 0;//是否超时
+						if (!noTimeout){
+							clearInterval(minterval);
+							setTimeout(function (){
+								(opt.complete).call(that, {state: 'fail', msg:'上传超时'});
+							},50);
+						}else if (mresponse != ''){
+							clearInterval(minterval);
+							var mResponseJson = $.parseJSON(mresponse);
+							setTimeout(function (){
+								(opt.complete).call(that, mResponseJson);
+							}, 50);
+							jIO.remove();
+							mform.remove();
+						}
+					}, 500);
+					setTimeout(function (){
+						(opt.start).call(that,{state:'ok', msg: '上传开始'});
+					}, 10);
+				};
+				this.cancelUpload = function (){
+					clearInterval(minterval);
+					setTimeout(function (){
+						(opt.complete).call(that, {state: 'cancel', msg:'取消成功'});
+					}, 10);
+				};
+			}
+			return new realUpload();
 		}
 	};
 })(jQuery);
