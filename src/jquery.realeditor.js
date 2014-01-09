@@ -1094,8 +1094,8 @@
 			var opt = $.extend(false, defaultOpt, dOpt);
 			var realDialog = function (){
 				var _rDialog = $('<div class="rleditor_redialog"><table><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr></table></div>').appendTo('body');
-				var _head = $("h3",_rDialog).html(opt.title);
-				var _content = $("div",_rDialog).html(opt.content);
+				var _head = $("td:first",_rDialog).html(opt.title);
+				var _content = $("td:eq(2)",_rDialog).html(opt.content);
 				if (!!opt.mask){//添加遮罩层
 					var _maskDiv = $('<div class="rleditor_mask"></div>');
 					_maskDiv.appendTo('body');
