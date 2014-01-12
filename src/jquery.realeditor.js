@@ -7,9 +7,11 @@
 
 (function ($){
 	$.fn.realeditor = function (opts){
+		var rea = new Array();
 		$.each(this, function (i, v){
-			new RealEditor(i,v,opts);
+			rea.push(new RealEditor(i,v,opts));
 		});
+		return rea.length === 1 ? rea.shift() : rea;
 	};
 
 	var ctlKeyMap = {9:"Tab",13:"Enter",16:"Shift",17:"Ctrl",18:"Alt",27:"Esc"}
@@ -19,7 +21,7 @@
 		if (typeof(o) != "object"){
 			o = {};
 		}
-
+		this.srcElement = el;//源元素
 		//
 		var userAgent=navigator.userAgent.toLowerCase();
 		this.isFirefox = /firefox/.test(userAgent);
@@ -117,6 +119,7 @@
 		var iframeId = this.getIframId(i)
 			,elWidth = el.width()
 			,elHeight = el.height()
+			,_jForm = el.closest('form')
 			,elContent = el.text();
 			el.after(html);
 		//隐藏文本框
@@ -136,6 +139,10 @@
 		this._initIframeContent(this.getIframeContentHtml()+elContent)
 			._initThisBody().setEditable(true).setCaretPosition(elContent.length)
 			.bindKeyEvent();
+		var that = this;
+		_jForm.submit(function (){
+			el.html(that.getEditorContentHtml());
+		});
 	};
 	RealEditor.options = {};
 	RealEditor.DEFAULT_OPTS = {
@@ -871,6 +878,9 @@
 		,getEditorContent: function (){
 			return $(this.mrl_body).text();
 		}
+		,getEditorContentHtml: function (){
+			return $(this.mrl_body).html();
+		}
 		,appendText : function(str){
 			var newStr = this.convertHtml(str);
 			return this.appendHtml(newStr);
@@ -1184,5 +1194,6 @@
 			}
 			return new realUpload();
 		}
+		,
 	};
 })(jQuery);
