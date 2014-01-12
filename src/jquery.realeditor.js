@@ -888,9 +888,10 @@
 		// convert html mark to entity name
 		// 转换thml标签为实体名字
 		,convertHtml: function (str){
-			var newStr = str.replace(/</g, '&lt;');
-			newStr = newStr.replace(/>/g, '&gt;');
-			newStr = newStr.replace(/\s/g, '&nbsp;');
+			var newStr = str.replace(/&/g, '&amp;')
+					.replace(/</g, '&lt;')
+					.replace(/>/g, '&gt;')
+					.replace(/\s/g, '&nbsp;');
 			return newStr;
 		}
 		,appendTextNode: function (str, select, start, end){
