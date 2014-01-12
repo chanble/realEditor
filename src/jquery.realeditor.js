@@ -1194,6 +1194,5 @@
 			}
 			return new realUpload();
 		}
-		,
 	};
 })(jQuery);
