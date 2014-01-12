@@ -8,10 +8,24 @@
 		<script type="text/javascript" src="src/jquery.realeditor.js"></script>
 	</head>
 	<body>
-		<textarea name="content"  cols="40" rows="10" class="realeditor">Welcome to realEditor!This is a WYSIWYG editor base of jQuery.You can extend easily.</textarea>
+		<form method="post" action="server.php">
+			<table>
+				<tr><th colspan="2">This is a simple submmit</th></tr>
+				<tr>
+					<td>title:</td>
+					<td><input type="text" name="title"/></td>
+				</tr>
+				<tr>
+					<td>content:</td>
+					<td><textarea name="content"  cols="40" rows="10" class="realeditor">Welcome to realEditor!This is a WYSIWYG editor base of jQuery.You can extend easily.</textarea></td>
+				</tr>
+				<tr><td colspan="2"><input type="submit" value="submit"/></td>
+				</tr>
+			</table>
+		</form>
 		<script type="text/javascript">
 			$(document).ready(function(){
-				$(".realeditor").realeditor({skinPath:'src/skin'});
+				var rd = $(".realeditor").realeditor({skinPath:'src/skin'});
 			});
 		</script>
 	</body>
