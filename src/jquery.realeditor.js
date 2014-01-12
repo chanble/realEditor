@@ -115,10 +115,10 @@
 				+'</td></tr><tr><td class="rleditor_content">'
 				+ iframeHtml +'</td></tr></tbody></table></span>';
 		var iframeId = this.getIframId(i)
-		,elWidth = el.width()
-		,elHeight = el.height()
-		,elContent = el.text();
-		el.after(html);
+			,elWidth = el.width()
+			,elHeight = el.height()
+			,elContent = el.text();
+			el.after(html);
 		//隐藏文本框
 		this._hide(el);
 		var rlcontaioner = $("#"+rlcontainerId);
@@ -617,7 +617,7 @@
 				var timeOut, ulHeight = 100;
 				fontUL.append(fontList)
 					.addClass('ul-list')
-					.css({"position": "absolute","left":ulLeft,"top":ulTop,"width":"60px"})
+					.css({"position": "absolute","left":ulLeft,"top":ulTop,"width":"70px"})
 					.height(ulHeight);
 				jel.after(fontUL)
 					.mouseleave(function (){
@@ -658,7 +658,7 @@
 				var timeOut, ulHeight = 50;
 				fontUL.append(fontList)
 					.addClass('ul-list')
-					.css({"position": "absolute","left":ulLeft,"top":ulTop,"width":"80px"})
+					.css({"position": "absolute","left":ulLeft,"top":ulTop,"width":"90px"})
 					.height(ulHeight);
 				jel.after(fontUL)
 					.mouseleave(function (){
