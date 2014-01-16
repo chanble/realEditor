@@ -88,6 +88,9 @@ Description: container style
 .rleditor_tool span.rltoolicon-insertimage{
 	background-position: -440px 0px;
 }
+.rleditor_tool span.rltoolicon-preview{
+	background-position: -580px 0px;
+}
 .rleditor_tool span.rltoolicon-about{
 	background-position: -640px 0px;
 }
