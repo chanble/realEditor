@@ -76,6 +76,21 @@
 					"mouseenter":"mouseEnter"
 				}
 			}//插入图片
+			,"preview":{"key": "preview", "label":"\u9884\u89c8"
+				, "event":{"click": function (el,o,e){
+						var editorText = this.getEditorContentHtml();
+						var previewDoc = window.open().document;
+						try{
+							previewDoc.open();
+							previewDoc.write(editorText);
+							previewDoc.close();
+						}catch(e){
+							console.error(e);
+						}
+
+					}
+				}
+			}
 			,"about": {"key": "about", "label": "\u5173\u4e8e"
 					, "event":{"click": function(el,o,e){
 							var divContent = '欢迎使用realEditor<br>您可以点击<a href="https://github.com/chanble/realEditor" target="_blank">这里</a>了解该项目<br>联系作者：chanble_cn@163.com'
@@ -800,7 +815,8 @@
 				,mimi: ['bold','italic','underline','strikeout']
 				,full:['bold','italic','underline','strikeout','font', 'fontSize'
 					,'forecolor','backcolor','formatblock','justify','list'
-					,'indent','outdent','selectAll','removeformat','link','unlink','image','about']
+					,'indent','outdent','selectAll','removeformat','link','unlink'
+					,'image','preview','about']
 			};
 			return this;
 		}
